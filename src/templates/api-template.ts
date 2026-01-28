@@ -2,7 +2,13 @@ import { OpenAPIContract } from '../parsers/openapi-parser.js';
 
 export function generateAPIPage(contract: OpenAPIContract): string {
   // Serialize the OpenAPI spec as JSON for embedding
-  const specJson = JSON.stringify(contract.fullSpec || {}, null, 2);
+  // Remove indentation to reduce file size
+  const specJson = JSON.stringify(contract.fullSpec || {})
+    .replace(/</g, '\\u003c')  // Escape < to prevent XSS
+    .replace(/>/g, '\\u003e')  // Escape > to prevent XSS
+    .replace(/\//g, '\\/')     // Escape / to prevent script injection
+    .replace(/\u2028/g, '\\u2028')  // Escape line separator
+    .replace(/\u2029/g, '\\u2029'); // Escape paragraph separator
   
   return `<!DOCTYPE html>
 <html lang="en">
@@ -65,6 +71,19 @@ export function generateAPIPage(contract: OpenAPIContract): string {
         .redoc-container {
             background: white;
         }
+        .error-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            color: #856404;
+        }
+        .error-container h2 {
+            margin-bottom: 1rem;
+            color: #856404;
+        }
     </style>
 </head>
 <body>
@@ -80,38 +99,67 @@ export function generateAPIPage(contract: OpenAPIContract): string {
         </div>
     </header>
     
-    <div class="redoc-container">
-        <redoc spec-url='#'></redoc>
-    </div>
+    <div class="redoc-container"></div>
     
-    <script src="../assets/redoc.standalone.js"></script>
+    <script src="../assets/redoc.standalone.js" onerror="handleScriptError()"></script>
     <script>
-        // Embed the OpenAPI spec directly in the page
-        const spec = ${specJson};
+        function handleScriptError() {
+            const container = document.querySelector('.redoc-container');
+            container.innerHTML = '<div class="error-container"><h2>⚠️ Documentation Failed to Load</h2><p>The Redoc library could not be loaded. Please ensure you have run <code>npm install</code> and <code>npm run generate</code> to properly build the documentation.</p></div>';
+        }
         
-        // Initialize Redoc with the embedded spec
-        Redoc.init(spec, {
-            scrollYOffset: 70,
-            hideDownloadButton: false,
-            theme: {
-                colors: {
-                    primary: {
-                        main: '#667eea'
-                    }
-                },
-                typography: {
-                    fontSize: '15px',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
-                    headings: {
-                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
-                    }
-                },
-                sidebar: {
-                    width: '280px',
-                    backgroundColor: '#fafafa'
+        function initRedoc() {
+            try {
+                // Check if Redoc is available
+                if (typeof Redoc === 'undefined') {
+                    handleScriptError();
+                    return;
                 }
+                
+                // Embed the OpenAPI spec
+                const spec = ${specJson};
+                
+                // Validate that we have a valid spec
+                if (!spec || !spec.openapi) {
+                    throw new Error('Invalid OpenAPI specification');
+                }
+                
+                // Initialize Redoc with the embedded spec
+                Redoc.init(spec, {
+                    scrollYOffset: 70,
+                    hideDownloadButton: false,
+                    theme: {
+                        colors: {
+                            primary: {
+                                main: '#667eea'
+                            }
+                        },
+                        typography: {
+                            fontSize: '15px',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
+                            headings: {
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
+                            }
+                        },
+                        sidebar: {
+                            width: '280px',
+                            backgroundColor: '#fafafa'
+                        }
+                    }
+                }, document.querySelector('.redoc-container'));
+            } catch (error) {
+                console.error('Failed to initialize Redoc:', error);
+                const container = document.querySelector('.redoc-container');
+                container.innerHTML = '<div class="error-container"><h2>⚠️ Documentation Error</h2><p>Failed to render OpenAPI documentation: ' + error.message + '</p><p>Please check that your OpenAPI specification is valid.</p></div>';
             }
-        }, document.querySelector('.redoc-container'));
+        }
+        
+        // Initialize Redoc after the script has loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initRedoc);
+        } else {
+            initRedoc();
+        }
     </script>
 </body>
 </html>`;
