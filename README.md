@@ -102,7 +102,6 @@ The repository includes example contracts in the `user-management` domain:
 - `npm run serve` - Serve the generated site locally
 - `npm run dev` - Build, generate, and serve in one command
 - `npm run dev:enhanced` - Build with enhanced documentation and serve
-- `npm run dev` - Build, generate, and serve in one command
 
 ## 📖 Usage Guide
 
@@ -227,7 +226,6 @@ The generated documentation will display:
 - **SLA properties** with retention, frequency, and availability details
 - **Support channels** for getting help
 - **Access roles** and permissions
-```
 
 ## 🚀 Enhanced Documentation with datacontract-cli
 
