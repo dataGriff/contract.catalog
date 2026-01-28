@@ -97,7 +97,11 @@ The repository includes example contracts in the `user-management` domain:
 
 - `npm run build` - Compile TypeScript to JavaScript
 - `npm run generate` - Generate the static site from contracts
+- `npm run generate:enhanced` - Build, generate, and create enhanced catalog with datacontract-cli (requires Python setup)
+- `npm run generate:datacontract` - Generate enhanced catalog using datacontract-cli (if installed)
 - `npm run serve` - Serve the generated site locally
+- `npm run dev` - Build, generate, and serve in one command
+- `npm run dev:enhanced` - Build with enhanced documentation and serve
 - `npm run dev` - Build, generate, and serve in one command
 
 ## 📖 Usage Guide
@@ -141,7 +145,7 @@ channels:
 
 ### Adding Data Contracts
 
-Create an ODCS v3.1.0 YAML file in `contracts/data/`:
+Create an ODCS v3.1.0 YAML file in your domain directory (e.g., `contracts/my-domain/`):
 
 ```yaml
 domain: my-domain
@@ -155,29 +159,143 @@ description:
   purpose: Define the structure and rules for my data
   usage: Analytics and reporting
 
+# Team information
+team:
+  name: data-team
+  description: Team responsible for data management
+
+# Schema definition with quality rules
 schema:
   - name: my_table
     physicalName: my_table
     description: My data table
+    # Table-level quality rules
+    quality:
+      - metric: rowCount
+        mustBeGreaterThan: 0
+        description: Table must contain records
+        dimension: completeness
     properties:
       - name: id
         physicalName: id
         logicalType: string
         required: true
         primaryKey: true
+        # Property-level quality rules
+        quality:
+          - metric: nullValues
+            mustBe: 0
+            description: ID cannot be null
+            severity: error
       - name: name
         physicalName: name
         logicalType: string
         required: true
+
+# Data quality expectations
+quality:
+  - metric: freshness
+    value: 24
+    unit: hours
+    description: Data should be updated daily
+    dimension: timeliness
+
+# SLA properties
+slaProperties:
+  - property: retention
+    value: 7
+    unit: years
+
+# Support information
+support:
+  - channel: email
+    value: team@example.com
+  - channel: slack
+    value: "#data-team"
+
+# Access roles
+roles:
+  - role: data_reader
+    access: read
+    description: Read-only access
 ```
+
+The generated documentation will display:
+- **Schema visualization** with all properties, types, and constraints
+- **Quality rules** at contract, table, and property levels with visual indicators
+- **Team information** including members and responsibilities
+- **SLA properties** with retention, frequency, and availability details
+- **Support channels** for getting help
+- **Access roles** and permissions
+```
+
+## 🚀 Enhanced Documentation with datacontract-cli
+
+For even more powerful data contract documentation, you can optionally install and use [datacontract-cli](https://cli.datacontract.com/), the official CLI tool for the Open Data Contract Standard (ODCS).
+
+### Benefits of Enhanced Documentation
+
+- **Interactive catalog** with advanced navigation
+- **Validation** of ODCS contracts against the official schema
+- **Multiple export formats** (HTML, Markdown, JSON Schema, SQL, and more)
+- **Quality testing** capabilities for data contracts
+- **Professional styling** with Tailwind CSS
+
+### Setup
+
+1. Install Python dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+2. Generate enhanced documentation:
+```bash
+npm run generate:enhanced
+```
+
+This will:
+1. Build and generate the standard catalog in `output/`
+2. Generate an enhanced catalog using datacontract-cli in `output/datacontract-catalog/`
+
+### Using datacontract-cli Independently
+
+You can also use datacontract-cli directly for more advanced features:
+
+```bash
+# Generate HTML catalog
+datacontract catalog --files "contracts/**/*.yaml" --output ./catalog
+
+# Export individual contract to different formats
+datacontract export contracts/user-management/user-contract.yaml --format html --output user-contract.html
+datacontract export contracts/user-management/user-contract.yaml --format markdown --output user-contract.md
+
+# Validate a data contract
+datacontract lint contracts/user-management/user-contract.yaml
+
+# Test data quality rules
+datacontract test contracts/user-management/user-contract.yaml
+```
+
+Learn more at [datacontract-cli documentation](https://cli.datacontract.com/).
 
 ## 🎨 Features
 
 - **Simple and Clean UI** - Modern, responsive design
 - **Zero Configuration** - Works out of the box
 - **Multiple Contract Types** - OpenAPI, AsyncAPI, and ODCS v3.1.0
+- **Comprehensive ODCS Support** - Complete visualization of all ODCS v3.1.0 fields including:
+  - Schema definitions with properties, types, and constraints
+  - Team information and members
+  - Data quality rules (contract-level, table-level, and property-level)
+  - Service Level Agreements (SLA properties)
+  - Support and contact information
+  - Roles and access control definitions
+  - Primary keys, unique constraints, and field classifications
+  - Examples and business metadata
+- **Property-Level Quality Rules** - Visual display of quality metrics for each data field
 - **Static Output** - Deploy anywhere (GitHub Pages, Netlify, etc.)
 - **Fast Generation** - Lightweight and efficient
+- **Optional Enhanced Documentation** - Integration with datacontract-cli for advanced ODCS catalog features
 
 ## 📦 Deployment
 
