@@ -96,9 +96,31 @@ The repository includes example contracts in the `user-management` domain:
 ## 🛠️ Available Scripts
 
 - `npm run build` - Compile TypeScript to JavaScript
-- `npm run generate` - Generate the static site from contracts
+- `npm run generate` - Generate the static site from contracts (includes AsyncAPI documentation)
 - `npm run serve` - Serve the generated site locally
 - `npm run dev` - Build, generate, and serve in one command
+
+## 📖 AsyncAPI Documentation
+
+AsyncAPI contracts receive special treatment with professional, interactive HTML documentation generated using the official [@asyncapi/generator](https://github.com/asyncapi/generator) and [@asyncapi/html-template](https://github.com/asyncapi/html-template).
+
+### Features of AsyncAPI Documentation
+
+- **Rich Interactive UI** - Beautiful, navigable interface with expand/collapse sections
+- **Complete Specification Coverage** - Servers, channels, operations, messages, and schemas
+- **Schema Visualization** - Visual representation of message payloads and data structures
+- **Operation Details** - Full documentation of publish/subscribe operations
+- **Example Payloads** - Interactive examples for all messages
+- **Professional Styling** - Official AsyncAPI branding and design
+
+### Accessing AsyncAPI Documentation
+
+When you generate the site, AsyncAPI contracts are automatically processed to create:
+
+1. **Summary Page** - A quick overview at `/user-management/user-events.html` with channels and servers
+2. **Complete Documentation** - Full interactive docs at `/asyncapi-docs/user-management/user-events/index.html`
+
+The summary page includes a prominent "View Complete AsyncAPI Documentation" button that links to the full documentation.
 
 ## 📖 Usage Guide
 
@@ -174,10 +196,11 @@ schema:
 ## 🎨 Features
 
 - **Simple and Clean UI** - Modern, responsive design
-- **Zero Configuration** - Works out of the box
 - **Multiple Contract Types** - OpenAPI, AsyncAPI, and ODCS v3.1.0
+- **Professional AsyncAPI Documentation** - Uses official AsyncAPI Generator with HTML template for rich, interactive event documentation
 - **Static Output** - Deploy anywhere (GitHub Pages, Netlify, etc.)
 - **Fast Generation** - Lightweight and efficient
+- **Zero Configuration** - Works out of the box
 
 ## 📦 Deployment
 

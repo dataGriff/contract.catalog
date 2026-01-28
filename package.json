@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc",
     "generate": "node dist/index.js",
+    "generate:asyncapi": "node dist/index.js",
     "serve": "npx http-server ./output -p 8080",
     "dev": "npm run build && npm run generate && npm run serve"
   },
@@ -20,9 +21,11 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@asyncapi/generator": "^2.11.0",
+    "@asyncapi/html-template": "^3.5.2",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.10.0",
-    "typescript": "^5.3.3",
-    "@types/js-yaml": "^4.0.9"
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "js-yaml": "^4.1.0"
