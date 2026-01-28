@@ -104,7 +104,7 @@ The repository includes example contracts in the `user-management` domain:
 
 ### Adding OpenAPI Contracts
 
-Create a YAML or JSON file in `contracts/openapi/`:
+Create a YAML or JSON file in your domain directory (e.g., `contracts/user-management/`):
 
 ```yaml
 openapi: 3.0.0
@@ -120,6 +120,13 @@ paths:
         '200':
           description: Success
 ```
+
+The generated documentation will include:
+- **Interactive API documentation** with Redoc
+- Detailed endpoint descriptions with request/response schemas
+- Code samples and examples
+- Searchable API reference
+- Downloadable OpenAPI specification
 
 ### Adding AsyncAPI Contracts
 
@@ -174,10 +181,16 @@ schema:
 ## 🎨 Features
 
 - **Simple and Clean UI** - Modern, responsive design
+- **Professional OpenAPI Documentation** - Beautiful, interactive API docs powered by Redoc
+  - Complete API documentation with request/response examples
+  - Interactive schema exploration
+  - Search functionality
+  - Downloadable OpenAPI specifications
 - **Zero Configuration** - Works out of the box
 - **Multiple Contract Types** - OpenAPI, AsyncAPI, and ODCS v3.1.0
 - **Static Output** - Deploy anywhere (GitHub Pages, Netlify, etc.)
 - **Fast Generation** - Lightweight and efficient
+- **Offline-Ready** - All documentation assets are bundled locally
 
 ## 📦 Deployment
 

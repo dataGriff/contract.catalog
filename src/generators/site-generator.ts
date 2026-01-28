@@ -28,6 +28,10 @@ export class StaticSiteGenerator {
 
     // Create output directories
     this.ensureDir(this.outputDir);
+    this.ensureDir(path.join(this.outputDir, 'assets'));
+    
+    // Copy Redoc standalone bundle for OpenAPI documentation
+    this.copyRedocBundle();
     
     // Create a directory for each domain
     domains.forEach(domain => {
@@ -78,6 +82,19 @@ export class StaticSiteGenerator {
   private ensureDir(dir: string): void {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
+    }
+  }
+
+  private copyRedocBundle(): void {
+    const redocSource = path.join(process.cwd(), 'node_modules', 'redoc', 'bundles', 'redoc.standalone.js');
+    const redocDest = path.join(this.outputDir, 'assets', 'redoc.standalone.js');
+    
+    if (fs.existsSync(redocSource)) {
+      fs.copyFileSync(redocSource, redocDest);
+      console.log('✓ Copied Redoc bundle to assets/');
+    } else {
+      console.warn('⚠ Redoc bundle not found. OpenAPI documentation may not render correctly.');
+      console.warn('  Run: npm install redoc');
     }
   }
 }

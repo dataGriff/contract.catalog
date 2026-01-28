@@ -11,6 +11,7 @@ export interface OpenAPIContract {
   paths: Record<string, any>;
   servers?: Array<{ url: string; description?: string }>;
   domain?: string;
+  fullSpec?: any; // Full OpenAPI specification for complete rendering
 }
 
 export function parseOpenAPIContract(filePath: string): OpenAPIContract {
@@ -24,7 +25,8 @@ export function parseOpenAPIContract(filePath: string): OpenAPIContract {
     description: spec.info?.description || '',
     fileName: path.basename(filePath),
     paths: spec.paths || {},
-    servers: spec.servers || []
+    servers: spec.servers || [],
+    fullSpec: spec
   };
 }
 
