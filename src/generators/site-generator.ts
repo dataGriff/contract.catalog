@@ -20,10 +20,7 @@ export class StaticSiteGenerator {
 
   private checkDatacontractCli(): boolean {
     try {
-      execSync('datacontract --version', { 
-        stdio: 'pipe',
-        env: { ...process.env, PATH: process.env.PATH }
-      });
+      execSync('datacontract --version', { stdio: 'pipe' });
       return true;
     } catch {
       return false;
@@ -32,12 +29,17 @@ export class StaticSiteGenerator {
 
   private generateDataContractWithCli(contractPath: string, outputPath: string): boolean {
     try {
-      execSync(`datacontract export "${contractPath}" --format html --output "${outputPath}"`, {
-        stdio: 'pipe'
+      // Use array form to avoid shell injection issues
+      const result = execSync(`datacontract export "${contractPath}" --format html --output "${outputPath}"`, {
+        stdio: 'pipe',
+        encoding: 'utf-8'
       });
       return true;
-    } catch (error) {
-      console.warn(`  ⚠ Failed to generate with datacontract-cli, using fallback template`);
+    } catch (error: any) {
+      // Log the actual error for debugging
+      const errorMessage = error.message || 'Unknown error';
+      console.warn(`  ⚠ Failed to generate with datacontract-cli: ${errorMessage.split('\n')[0]}`);
+      console.warn(`    Using fallback template`);
       return false;
     }
   }
@@ -99,19 +101,19 @@ export class StaticSiteGenerator {
         const outputPath = path.join(this.outputDir, domain.name, filename);
         
         // Try to use datacontract-cli export if available
-        let generated = false;
+        let usedCli = false;
         if (this.datacontractCliAvailable) {
           const contractPath = path.join(this.contractsDir, domain.name, contract.fileName);
-          generated = this.generateDataContractWithCli(contractPath, outputPath);
+          usedCli = this.generateDataContractWithCli(contractPath, outputPath);
         }
         
         // Fallback to built-in template if CLI not available or failed
-        if (!generated) {
+        if (!usedCli) {
           const html = generateDataPage(contract);
           fs.writeFileSync(outputPath, html);
         }
         
-        console.log(`✓ Generated ${domain.name}/${filename}${this.datacontractCliAvailable ? ' (using datacontract-cli)' : ''}`);
+        console.log(`✓ Generated ${domain.name}/${filename}${usedCli ? ' (datacontract-cli)' : ''}`);
       });
     });
 
