@@ -59,6 +59,8 @@ npm run dev
 
 The static site will be generated in the `output/` directory.
 
+**Note**: If you have [datacontract-cli](https://cli.datacontract.com/) installed (`pip install -r requirements.txt`), the generator will automatically use it to create data contract HTML pages with the official ODCS rendering. Otherwise, it falls back to the built-in templates.
+
 ### View the Catalog
 
 ```bash
@@ -96,12 +98,9 @@ The repository includes example contracts in the `user-management` domain:
 ## 🛠️ Available Scripts
 
 - `npm run build` - Compile TypeScript to JavaScript
-- `npm run generate` - Generate the static site from contracts
-- `npm run generate:enhanced` - Build, generate, and create enhanced catalog with datacontract-cli (requires Python setup)
-- `npm run generate:datacontract` - Generate enhanced catalog using datacontract-cli (if installed)
+- `npm run generate` - Generate the static site from contracts (auto-uses datacontract-cli if available)
 - `npm run serve` - Serve the generated site locally
 - `npm run dev` - Build, generate, and serve in one command
-- `npm run dev:enhanced` - Build with enhanced documentation and serve
 
 ## 📖 Usage Guide
 
@@ -227,51 +226,55 @@ The generated documentation will display:
 - **Support channels** for getting help
 - **Access roles** and permissions
 
-## 🚀 Enhanced Documentation with datacontract-cli
+## 🚀 Data Contract Documentation with datacontract-cli
 
-For even more powerful data contract documentation, you can optionally install and use [datacontract-cli](https://cli.datacontract.com/), the official CLI tool for the Open Data Contract Standard (ODCS).
+The Contract Catalog automatically uses [datacontract-cli](https://cli.datacontract.com/) (the official CLI tool for ODCS) to generate data contract HTML pages when available. This provides the most complete and up-to-date ODCS visualization.
 
-### Benefits of Enhanced Documentation
+### Automatic Integration
 
-- **Interactive catalog** with advanced navigation
-- **Validation** of ODCS contracts against the official schema
-- **Multiple export formats** (HTML, Markdown, JSON Schema, SQL, and more)
-- **Quality testing** capabilities for data contracts
-- **Professional styling** with Tailwind CSS
+When you run `npm run generate`, the generator:
+1. **Checks** if datacontract-cli is installed
+2. **Uses** `datacontract export --format html` for data contracts (if available)
+3. **Falls back** to built-in templates if datacontract-cli is not installed
 
-### Setup
+### Setup (Recommended)
 
-1. Install Python dependencies:
+Install datacontract-cli for the best data contract documentation:
+
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Generate enhanced documentation:
+Then generate as usual:
 ```bash
-npm run generate:enhanced
+npm run generate
 ```
 
-This will:
-1. Build and generate the standard catalog in `output/`
-2. Generate an enhanced catalog using datacontract-cli in `output/datacontract-catalog/`
+### Benefits of Using datacontract-cli
 
-### Using datacontract-cli Independently
+- ✅ **Official ODCS rendering** - Always up-to-date with the latest standard
+- ✅ **Complete field coverage** - All ODCS v3.1.0+ fields supported
+- ✅ **Professional styling** - Tailwind CSS-based design
+- ✅ **Validation** - Contracts are validated during export
+- ✅ **Zero maintenance** - No need to update templates for new ODCS features
 
-You can also use datacontract-cli directly for more advanced features:
+### Additional datacontract-cli Features
+
+You can also use datacontract-cli for advanced operations:
 
 ```bash
-# Generate HTML catalog
-datacontract catalog --files "contracts/**/*.yaml" --output ./catalog
-
-# Export individual contract to different formats
-datacontract export contracts/user-management/user-contract.yaml --format html --output user-contract.html
-datacontract export contracts/user-management/user-contract.yaml --format markdown --output user-contract.md
+# Export to other formats
+datacontract export contracts/user-management/user-contract.yaml --format markdown
+datacontract export contracts/user-management/user-contract.yaml --format sql
 
 # Validate a data contract
 datacontract lint contracts/user-management/user-contract.yaml
 
 # Test data quality rules
 datacontract test contracts/user-management/user-contract.yaml
+
+# Generate a catalog of all contracts (alternative to npm run generate)
+datacontract catalog --files "contracts/**/*.yaml" --output ./catalog
 ```
 
 Learn more at [datacontract-cli documentation](https://cli.datacontract.com/).

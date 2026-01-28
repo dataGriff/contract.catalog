@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { execSync } from 'child_process';
 import { parseAllDomains, Domain } from '../parsers/domain-parser.js';
 import { generateIndexPage } from '../templates/index-template.js';
 import { generateAPIPage } from '../templates/api-template.js';
@@ -9,14 +10,47 @@ import { generateDataPage } from '../templates/data-template.js';
 export class StaticSiteGenerator {
   private contractsDir: string;
   private outputDir: string;
+  private datacontractCliAvailable: boolean;
 
   constructor(contractsDir: string, outputDir: string) {
     this.contractsDir = contractsDir;
     this.outputDir = outputDir;
+    this.datacontractCliAvailable = this.checkDatacontractCli();
+  }
+
+  private checkDatacontractCli(): boolean {
+    try {
+      execSync('datacontract --version', { 
+        stdio: 'pipe',
+        env: { ...process.env, PATH: process.env.PATH }
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private generateDataContractWithCli(contractPath: string, outputPath: string): boolean {
+    try {
+      execSync(`datacontract export "${contractPath}" --format html --output "${outputPath}"`, {
+        stdio: 'pipe'
+      });
+      return true;
+    } catch (error) {
+      console.warn(`  ⚠ Failed to generate with datacontract-cli, using fallback template`);
+      return false;
+    }
   }
 
   generate(): void {
     console.log('🔍 Scanning contracts directory...');
+    
+    if (this.datacontractCliAvailable) {
+      console.log('✓ datacontract-cli detected - will use for data contract HTML generation');
+    } else {
+      console.log('ℹ datacontract-cli not found - using built-in templates for data contracts');
+      console.log('  Install with: pip install -r requirements.txt (for enhanced output)');
+    }
     
     // Parse all domains
     const domains = parseAllDomains(this.contractsDir);
@@ -61,10 +95,23 @@ export class StaticSiteGenerator {
 
       // Generate data contract pages
       domain.dataContracts.forEach(contract => {
-        const html = generateDataPage(contract);
         const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
-        fs.writeFileSync(path.join(this.outputDir, domain.name, filename), html);
-        console.log(`✓ Generated ${domain.name}/${filename}`);
+        const outputPath = path.join(this.outputDir, domain.name, filename);
+        
+        // Try to use datacontract-cli export if available
+        let generated = false;
+        if (this.datacontractCliAvailable) {
+          const contractPath = path.join(this.contractsDir, domain.name, contract.fileName);
+          generated = this.generateDataContractWithCli(contractPath, outputPath);
+        }
+        
+        // Fallback to built-in template if CLI not available or failed
+        if (!generated) {
+          const html = generateDataPage(contract);
+          fs.writeFileSync(outputPath, html);
+        }
+        
+        console.log(`✓ Generated ${domain.name}/${filename}${this.datacontractCliAvailable ? ' (using datacontract-cli)' : ''}`);
       });
     });
 
