@@ -103,6 +103,7 @@ The repository includes example contracts in the `user-management` domain:
 - `npm run dev` - Build, generate, and serve in one command
 - `npm run lint` - Lint all contract files (OpenAPI and AsyncAPI)
 - `npm run lint:contracts` - Lint contract files using Spectral
+- `npm run lint:contracts:strict` - Lint contracts with strict mode (warnings fail the build)
 
 ## 🔍 Contract Linting
 
@@ -119,8 +120,11 @@ Contract Catalog uses [Spectral](https://stoplight.io/open-source/spectral) to l
 ### Running Linting
 
 ```bash
-# Lint all contracts
+# Lint all contracts (warnings only, won't fail)
 npm run lint
+
+# Lint contracts in strict mode (warnings will fail the build)
+npm run lint:contracts:strict
 
 # Or specifically lint contracts
 npm run lint:contracts

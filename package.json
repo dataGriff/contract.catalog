@@ -12,6 +12,7 @@
     "dev": "npm run build && npm run generate && npm run serve",
     "lint": "npm run lint:contracts",
     "lint:contracts": "spectral lint \"contracts/**/*.yaml\"",
+    "lint:contracts:strict": "spectral lint \"contracts/**/*.yaml\" --fail-severity=warn",
     "lint:fix": "echo 'Spectral does not support auto-fix. Please review and fix issues manually.'"
   },
   "keywords": [

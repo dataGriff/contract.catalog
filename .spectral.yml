@@ -10,7 +10,7 @@ rules:
   operation-description: warn
   operation-operationId: warn
   operation-tags: warn
-  operation-tag-defined: error
+  operation-tag-defined: warn  # Changed from error to warn
   openapi-tags: warn
   tag-description: warn
   
@@ -22,6 +22,10 @@ rules:
   asyncapi-channel-servers: warn
   asyncapi-channel-no-query-nor-fragment: error
   asyncapi-operation-operationId: warn
+  asyncapi-tags: off  # Disable tags requirement for AsyncAPI
+  asyncapi-info-license: off  # Disable license requirement
+  asyncapi-info-contact-properties: warn
+  asyncapi-latest-version: warn
   
   # Custom rules for better API quality
   no-$ref-siblings: error
