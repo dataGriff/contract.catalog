@@ -25,6 +25,7 @@
     "@asyncapi/html-template": "^3.5.2",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.10.0",
+    "redoc": "^2.5.2",
     "typescript": "^5.3.3"
   },
   "dependencies": {

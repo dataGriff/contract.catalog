@@ -1,6 +1,15 @@
 import { OpenAPIContract } from '../parsers/openapi-parser.js';
 
 export function generateAPIPage(contract: OpenAPIContract): string {
+  // Serialize the OpenAPI spec as JSON for embedding
+  // Remove indentation to reduce file size
+  const specJson = JSON.stringify(contract.fullSpec || {})
+    .replace(/</g, '\\u003c')  // Escape < to prevent XSS
+    .replace(/>/g, '\\u003e')  // Escape > to prevent XSS
+    .replace(/\//g, '\\/')     // Escape / to prevent script injection
+    .replace(/\u2028/g, '\\u2028')  // Escape line separator
+    .replace(/\u2029/g, '\\u2029'); // Escape paragraph separator
+  
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,142 +31,136 @@ export function generateAPIPage(contract: OpenAPIContract): string {
         header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 2rem;
+            padding: 1.5rem 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .header-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
         header h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            margin: 0;
         }
         header .version {
             opacity: 0.9;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
         .nav-link {
             display: inline-block;
             color: white;
             text-decoration: none;
-            margin-top: 1rem;
             opacity: 0.9;
+            font-weight: 500;
         }
         .nav-link:hover {
             opacity: 1;
             text-decoration: underline;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        .section {
+        .redoc-container {
             background: white;
-            margin-bottom: 2rem;
+        }
+        .error-container {
+            max-width: 800px;
+            margin: 2rem auto;
             padding: 2rem;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: #856404;
         }
-        .section h2 {
-            color: #667eea;
+        .error-container h2 {
             margin-bottom: 1rem;
-            font-size: 1.5rem;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 0.5rem;
-        }
-        .endpoint {
-            background: #f9f9f9;
-            border-left: 4px solid #667eea;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 4px;
-        }
-        .method {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            margin-right: 0.5rem;
-        }
-        .method.get { background: #61affe; color: white; }
-        .method.post { background: #49cc90; color: white; }
-        .method.put { background: #fca130; color: white; }
-        .method.delete { background: #f93e3e; color: white; }
-        .method.patch { background: #50e3c2; color: white; }
-        .path {
-            font-family: 'Courier New', monospace;
-            font-size: 1.1rem;
-            color: #333;
-        }
-        .endpoint-description {
-            margin-top: 0.5rem;
-            color: #666;
-        }
-        .server-item {
-            background: #f0f0f0;
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-radius: 4px;
-        }
-        .server-url {
-            font-family: 'Courier New', monospace;
-            color: #667eea;
-            font-weight: bold;
+            color: #856404;
         }
     </style>
 </head>
 <body>
     <header>
         <div class="header-content">
-            <a href="../index.html" class="nav-link">← Back to Catalog</a>
-            <h1>🔌 ${escapeHtml(contract.title)}</h1>
-            <div class="version">Version: ${escapeHtml(contract.version)}</div>
+            <div class="header-left">
+                <a href="../index.html" class="nav-link">← Back to Catalog</a>
+                <div>
+                    <h1>🔌 ${escapeHtml(contract.title)}</h1>
+                    <div class="version">Version: ${escapeHtml(contract.version)}</div>
+                </div>
+            </div>
         </div>
     </header>
     
-    <div class="container">
-        ${contract.description ? `
-        <div class="section">
-            <h2>Description</h2>
-            <p>${escapeHtml(contract.description)}</p>
-        </div>
-        ` : ''}
-
-        ${contract.servers && contract.servers.length > 0 ? `
-        <div class="section">
-            <h2>Servers</h2>
-            ${contract.servers.map((server: any) => `
-                <div class="server-item">
-                    <div class="server-url">${escapeHtml(server.url)}</div>
-                    ${server.description ? `<div>${escapeHtml(server.description)}</div>` : ''}
-                </div>
-            `).join('')}
-        </div>
-        ` : ''}
-
-        <div class="section">
-            <h2>Endpoints</h2>
-            ${Object.entries(contract.paths).map(([path, methods]: [string, any]) => `
-                ${Object.entries(methods).map(([method, details]: [string, any]) => {
-                    const validMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
-                    const methodLower = method.toLowerCase();
-                    const methodClass = validMethods.includes(methodLower) ? methodLower : 'get';
-                    return `
-                    <div class="endpoint">
-                        <div>
-                            <span class="method ${methodClass}">${escapeHtml(method.toUpperCase())}</span>
-                            <span class="path">${escapeHtml(path)}</span>
-                        </div>
-                        ${details.summary ? `<div class="endpoint-description"><strong>${escapeHtml(details.summary)}</strong></div>` : ''}
-                        ${details.description ? `<div class="endpoint-description">${escapeHtml(details.description)}</div>` : ''}
-                    </div>
-                `}).join('')}
-            `).join('')}
-        </div>
-    </div>
+    <div class="redoc-container"></div>
+    
+    <script src="../assets/redoc.standalone.js" onerror="handleScriptError()"></script>
+    <script>
+        function handleScriptError() {
+            const container = document.querySelector('.redoc-container');
+            container.innerHTML = '<div class="error-container"><h2>⚠️ Documentation Failed to Load</h2><p>The Redoc library could not be loaded. Please ensure you have run <code>npm install</code> and <code>npm run generate</code> to properly build the documentation.</p></div>';
+        }
+        
+        function initRedoc() {
+            try {
+                // Check if Redoc is available
+                if (typeof Redoc === 'undefined') {
+                    handleScriptError();
+                    return;
+                }
+                
+                // Embed the OpenAPI spec
+                const spec = ${specJson};
+                
+                // Validate that we have a valid spec
+                if (!spec || !spec.openapi) {
+                    throw new Error('Invalid OpenAPI specification');
+                }
+                
+                // Initialize Redoc with the embedded spec
+                Redoc.init(spec, {
+                    scrollYOffset: 70,
+                    hideDownloadButton: false,
+                    theme: {
+                        colors: {
+                            primary: {
+                                main: '#667eea'
+                            }
+                        },
+                        typography: {
+                            fontSize: '15px',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
+                            headings: {
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif',
+                            }
+                        },
+                        sidebar: {
+                            width: '280px',
+                            backgroundColor: '#fafafa'
+                        }
+                    }
+                }, document.querySelector('.redoc-container'));
+            } catch (error) {
+                console.error('Failed to initialize Redoc:', error);
+                const container = document.querySelector('.redoc-container');
+                container.innerHTML = '<div class="error-container"><h2>⚠️ Documentation Error</h2><p>Failed to render OpenAPI documentation: ' + error.message + '</p><p>Please check that your OpenAPI specification is valid.</p></div>';
+            }
+        }
+        
+        // Initialize Redoc after the script has loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initRedoc);
+        } else {
+            initRedoc();
+        }
+    </script>
 </body>
 </html>`;
 }
