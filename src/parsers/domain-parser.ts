@@ -118,6 +118,7 @@ function parseDataContract(filePath: string, domain: string): DataContract {
         roles: contract.roles,
         slaProperties: contract.slaProperties,
         quality: contract.quality,
+        support: contract.support,
         isODCS: true
       };
     }

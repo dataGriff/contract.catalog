@@ -242,6 +242,20 @@ function generateODCSPage(contract: DataContract): string {
                         ` : ''}
                     </div>
 
+                    ${table.quality && table.quality.length > 0 ? `
+                        <div style="background: #f0f9ff; border-left: 4px solid #667eea; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                            <h4 style="margin-bottom: 0.75rem; color: #667eea;">Table Quality Rules</h4>
+                            ${table.quality.map((q: any) => `
+                                <div style="margin-bottom: 0.5rem; background: white; padding: 0.75rem; border-radius: 4px;">
+                                    ${q.metric ? `<div><strong>${escapeHtml(q.metric)}</strong></div>` : ''}
+                                    ${q.description ? `<div style="color: #666; font-size: 0.9rem;">${escapeHtml(q.description)}</div>` : ''}
+                                    ${q.dimension ? `<div style="margin-top: 0.25rem; font-size: 0.85rem;">Dimension: ${escapeHtml(q.dimension)}</div>` : ''}
+                                    ${q.severity ? `<div style="margin-top: 0.25rem;"><span style="background: ${q.severity === 'error' ? '#fee' : '#ffc'}; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.75rem;">${escapeHtml(q.severity)}</span></div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
                     ${table.properties && table.properties.length > 0 ? `
                         <h3 style="margin-bottom: 1rem;">Properties</h3>
                         ${table.properties.map((prop: any) => `
@@ -266,6 +280,18 @@ function generateODCSPage(contract: DataContract): string {
                                 ${prop.examples && prop.examples.length > 0 ? `
                                     <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #666;">
                                         Examples: ${prop.examples.map((ex: any) => `<code>${escapeHtml(JSON.stringify(ex))}</code>`).join(', ')}
+                                    </div>
+                                ` : ''}
+                                ${prop.quality && prop.quality.length > 0 ? `
+                                    <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e5e7eb;">
+                                        <div style="font-weight: bold; margin-bottom: 0.5rem; color: #667eea; font-size: 0.9rem;">Quality Rules</div>
+                                        ${prop.quality.map((q: any) => `
+                                            <div style="margin-bottom: 0.5rem; padding: 0.5rem; background: white; border-radius: 4px; font-size: 0.85rem;">
+                                                ${q.metric ? `<div><strong>${escapeHtml(q.metric)}</strong></div>` : ''}
+                                                ${q.description ? `<div style="color: #666;">${escapeHtml(q.description)}</div>` : ''}
+                                                ${q.severity ? `<div style="margin-top: 0.25rem;"><span style="background: ${q.severity === 'error' ? '#fee' : '#ffc'}; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.75rem;">${escapeHtml(q.severity)}</span></div>` : ''}
+                                            </div>
+                                        `).join('')}
                                     </div>
                                 ` : ''}
                             </div>
@@ -297,6 +323,35 @@ function generateODCSPage(contract: DataContract): string {
                         <div class="info-label">${escapeHtml(sla.property)}</div>
                         <div>${escapeHtml(sla.value)}${sla.unit ? ` ${escapeHtml(sla.unit)}` : ''}</div>
                         ${sla.description ? `<div style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;">${escapeHtml(sla.description)}</div>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        ` : ''}
+
+        ${contract.quality && contract.quality.length > 0 ? `
+        <div class="section">
+            <h2>Data Quality</h2>
+            ${contract.quality.map((q: any) => `
+                <div class="info-item" style="margin-bottom: 1rem;">
+                    ${q.metric ? `<div class="info-label">Metric: ${escapeHtml(q.metric)}</div>` : ''}
+                    ${q.dimension ? `<div style="margin-top: 0.5rem;"><strong>Dimension:</strong> ${escapeHtml(q.dimension)}</div>` : ''}
+                    ${q.description ? `<div style="margin-top: 0.25rem;">${escapeHtml(q.description)}</div>` : ''}
+                    ${q.value !== undefined ? `<div style="margin-top: 0.25rem;"><strong>Value:</strong> ${escapeHtml(q.value)}${q.unit ? ` ${escapeHtml(q.unit)}` : ''}</div>` : ''}
+                    ${q.severity ? `<div style="margin-top: 0.25rem;"><strong>Severity:</strong> <span style="color: ${q.severity === 'error' ? '#f93e3e' : '#fca130'};">${escapeHtml(q.severity)}</span></div>` : ''}
+                </div>
+            `).join('')}
+        </div>
+        ` : ''}
+
+        ${contract.support && contract.support.length > 0 ? `
+        <div class="section">
+            <h2>Support & Contact</h2>
+            <div class="info-grid">
+                ${contract.support.map((s: any) => `
+                    <div class="info-item">
+                        <div class="info-label">${escapeHtml(s.channel || 'Contact')}</div>
+                        <div>${escapeHtml(s.value)}</div>
                     </div>
                 `).join('')}
             </div>

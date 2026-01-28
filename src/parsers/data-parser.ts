@@ -16,6 +16,7 @@ export interface DataContract {
   roles?: any[];
   slaProperties?: any[];
   quality?: any[];
+  support?: any[];
   isODCS?: boolean;
 }
 
@@ -45,6 +46,7 @@ export function parseDataContract(filePath: string): DataContract {
         roles: contract.roles,
         slaProperties: contract.slaProperties,
         quality: contract.quality,
+        support: contract.support,
         isODCS: true
       };
     }
