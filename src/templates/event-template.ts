@@ -1,4 +1,6 @@
-export function generateEventPage(contract: any): string {
+import { AsyncAPIContract } from '../parsers/asyncapi-parser.js';
+
+export function generateEventPage(contract: AsyncAPIContract): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>

@@ -1,4 +1,6 @@
-export function generateAPIPage(contract: any): string {
+import { OpenAPIContract } from '../parsers/openapi-parser.js';
+
+export function generateAPIPage(contract: OpenAPIContract): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -139,16 +141,20 @@ export function generateAPIPage(contract: any): string {
         <div class="section">
             <h2>Endpoints</h2>
             ${Object.entries(contract.paths).map(([path, methods]: [string, any]) => `
-                ${Object.entries(methods).map(([method, details]: [string, any]) => `
+                ${Object.entries(methods).map(([method, details]: [string, any]) => {
+                    const validMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
+                    const methodLower = method.toLowerCase();
+                    const methodClass = validMethods.includes(methodLower) ? methodLower : 'get';
+                    return `
                     <div class="endpoint">
                         <div>
-                            <span class="method ${method.toLowerCase()}">${method.toUpperCase()}</span>
+                            <span class="method ${methodClass}">${escapeHtml(method.toUpperCase())}</span>
                             <span class="path">${escapeHtml(path)}</span>
                         </div>
                         ${details.summary ? `<div class="endpoint-description"><strong>${escapeHtml(details.summary)}</strong></div>` : ''}
                         ${details.description ? `<div class="endpoint-description">${escapeHtml(details.description)}</div>` : ''}
                     </div>
-                `).join('')}
+                `}).join('')}
             `).join('')}
         </div>
     </div>

@@ -1,7 +1,11 @@
+import { OpenAPIContract } from '../parsers/openapi-parser.js';
+import { AsyncAPIContract } from '../parsers/asyncapi-parser.js';
+import { DataContract } from '../parsers/data-parser.js';
+
 export function generateIndexPage(
-  apiContracts: any[],
-  eventContracts: any[],
-  dataContracts: any[]
+  apiContracts: OpenAPIContract[],
+  eventContracts: AsyncAPIContract[],
+  dataContracts: DataContract[]
 ): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -137,7 +141,7 @@ export function generateIndexPage(
                     <h3>${escapeHtml(contract.title)}</h3>
                     <div class="version">Version: ${escapeHtml(contract.version)}</div>
                     <div class="description">${escapeHtml(contract.description)}</div>
-                    <a href="api/${contract.fileName.replace(/\.(yaml|yml|json)$/, '.html')}">View Details →</a>
+                    <a href="api/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
                 </div>
                 `).join('')}
             </div>
@@ -154,7 +158,7 @@ export function generateIndexPage(
                     <h3>${escapeHtml(contract.title)}</h3>
                     <div class="version">Version: ${escapeHtml(contract.version)}</div>
                     <div class="description">${escapeHtml(contract.description)}</div>
-                    <a href="events/${contract.fileName.replace(/\.(yaml|yml|json)$/, '.html')}">View Details →</a>
+                    <a href="events/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
                 </div>
                 `).join('')}
             </div>
@@ -170,7 +174,7 @@ export function generateIndexPage(
                     <span class="badge">JSON Schema</span>
                     <h3>${escapeHtml(contract.title)}</h3>
                     <div class="description">${escapeHtml(contract.description)}</div>
-                    <a href="data/${contract.fileName.replace('.json', '.html')}">View Details →</a>
+                    <a href="data/${escapeHtml(contract.fileName.replace('.json', '.html'))}">View Details →</a>
                 </div>
                 `).join('')}
             </div>

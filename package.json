@@ -21,10 +21,10 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.10.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@types/js-yaml": "^4.0.9"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0",
-    "@types/js-yaml": "^4.0.9"
+    "js-yaml": "^4.1.0"
   }
 }

@@ -1,4 +1,6 @@
-export function generateDataPage(contract: any): string {
+import { DataContract } from '../parsers/data-parser.js';
+
+export function generateDataPage(contract: DataContract): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
