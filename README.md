@@ -59,6 +59,8 @@ npm run dev
 
 The static site will be generated in the `output/` directory.
 
+**Note**: If you have [datacontract-cli](https://cli.datacontract.com/) installed (`pip install -r requirements.txt`), the generator will automatically use it to create data contract HTML pages with the official ODCS rendering. Otherwise, it falls back to the built-in templates.
+
 ### View the Catalog
 
 ```bash
@@ -96,7 +98,7 @@ The repository includes example contracts in the `user-management` domain:
 ## 🛠️ Available Scripts
 
 - `npm run build` - Compile TypeScript to JavaScript
-- `npm run generate` - Generate the static site from contracts (includes AsyncAPI documentation)
+- `npm run generate` - Generate the static site from contracts (includes AsyncAPI documentation, auto-uses datacontract-cli if available)
 - `npm run serve` - Serve the generated site locally
 - `npm run dev` - Build, generate, and serve in one command
 
@@ -170,7 +172,7 @@ channels:
 
 ### Adding Data Contracts
 
-Create an ODCS v3.1.0 YAML file in `contracts/data/`:
+Create an ODCS v3.1.0 YAML file in your domain directory (e.g., `contracts/my-domain/`):
 
 ```yaml
 domain: my-domain
@@ -184,21 +186,127 @@ description:
   purpose: Define the structure and rules for my data
   usage: Analytics and reporting
 
+# Team information
+team:
+  name: data-team
+  description: Team responsible for data management
+
+# Schema definition with quality rules
 schema:
   - name: my_table
     physicalName: my_table
     description: My data table
+    # Table-level quality rules
+    quality:
+      - metric: rowCount
+        mustBeGreaterThan: 0
+        description: Table must contain records
+        dimension: completeness
     properties:
       - name: id
         physicalName: id
         logicalType: string
         required: true
         primaryKey: true
+        # Property-level quality rules
+        quality:
+          - metric: nullValues
+            mustBe: 0
+            description: ID cannot be null
+            severity: error
       - name: name
         physicalName: name
         logicalType: string
         required: true
+
+# Data quality expectations
+quality:
+  - metric: freshness
+    value: 24
+    unit: hours
+    description: Data should be updated daily
+    dimension: timeliness
+
+# SLA properties
+slaProperties:
+  - property: retention
+    value: 7
+    unit: years
+
+# Support information
+support:
+  - channel: email
+    value: team@example.com
+  - channel: slack
+    value: "#data-team"
+
+# Access roles
+roles:
+  - role: data_reader
+    access: read
+    description: Read-only access
 ```
+
+The generated documentation will display:
+- **Schema visualization** with all properties, types, and constraints
+- **Quality rules** at contract, table, and property levels with visual indicators
+- **Team information** including members and responsibilities
+- **SLA properties** with retention, frequency, and availability details
+- **Support channels** for getting help
+- **Access roles** and permissions
+
+## 🚀 Data Contract Documentation with datacontract-cli
+
+The Contract Catalog automatically uses [datacontract-cli](https://cli.datacontract.com/) (the official CLI tool for ODCS) to generate data contract HTML pages when available. This provides the most complete and up-to-date ODCS visualization.
+
+### Automatic Integration
+
+When you run `npm run generate`, the generator:
+1. **Checks** if datacontract-cli is installed
+2. **Uses** `datacontract export --format html` for data contracts (if available)
+3. **Falls back** to built-in templates if datacontract-cli is not installed
+
+### Setup (Recommended)
+
+Install datacontract-cli for the best data contract documentation:
+
+```bash
+pip install -r requirements.txt
+```
+
+Then generate as usual:
+```bash
+npm run generate
+```
+
+### Benefits of Using datacontract-cli
+
+- ✅ **Official ODCS rendering** - Always up-to-date with the latest standard
+- ✅ **Complete field coverage** - All ODCS v3.1.0+ fields supported
+- ✅ **Professional styling** - Tailwind CSS-based design
+- ✅ **Validation** - Contracts are validated during export
+- ✅ **Zero maintenance** - No need to update templates for new ODCS features
+
+### Additional datacontract-cli Features
+
+You can also use datacontract-cli for advanced operations:
+
+```bash
+# Export to other formats
+datacontract export contracts/user-management/user-contract.yaml --format markdown
+datacontract export contracts/user-management/user-contract.yaml --format sql
+
+# Validate a data contract
+datacontract lint contracts/user-management/user-contract.yaml
+
+# Test data quality rules
+datacontract test contracts/user-management/user-contract.yaml
+
+# Generate a catalog of all contracts (alternative to npm run generate)
+datacontract catalog --files "contracts/**/*.yaml" --output ./catalog
+```
+
+Learn more at [datacontract-cli documentation](https://cli.datacontract.com/).
 
 ## 🎨 Features
 
@@ -211,8 +319,19 @@ schema:
 - **Professional AsyncAPI Documentation** - Uses official AsyncAPI Generator with HTML template for rich, interactive event documentation
 - **Zero Configuration** - Works out of the box
 - **Multiple Contract Types** - OpenAPI, AsyncAPI, and ODCS v3.1.0
+- **Comprehensive ODCS Support** - Complete visualization of all ODCS v3.1.0 fields including:
+  - Schema definitions with properties, types, and constraints
+  - Team information and members
+  - Data quality rules (contract-level, table-level, and property-level)
+  - Service Level Agreements (SLA properties)
+  - Support and contact information
+  - Roles and access control definitions
+  - Primary keys, unique constraints, and field classifications
+  - Examples and business metadata
+- **Property-Level Quality Rules** - Visual display of quality metrics for each data field
 - **Static Output** - Deploy anywhere (GitHub Pages, Netlify, etc.)
 - **Fast Generation** - Lightweight and efficient
+- **Optional Enhanced Documentation** - Integration with datacontract-cli for advanced ODCS catalog features
 - **Offline-Ready** - All documentation assets are bundled locally
 
 ## 📦 Deployment

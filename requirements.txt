@@ -1,0 +1,6 @@
+# Optional Python dependencies for enhanced data contract documentation
+# Install with: pip install -r requirements.txt
+
+# Official CLI for Open Data Contract Standard (ODCS)
+# Provides enhanced HTML documentation generation with catalog support
+datacontract-cli>=0.11.0
