@@ -101,6 +101,50 @@ The repository includes example contracts in the `user-management` domain:
 - `npm run generate` - Generate the static site from contracts (includes AsyncAPI documentation, auto-uses datacontract-cli if available)
 - `npm run serve` - Serve the generated site locally
 - `npm run dev` - Build, generate, and serve in one command
+- `npm run lint` - Lint all contract files (OpenAPI and AsyncAPI)
+- `npm run lint:contracts` - Lint contract files using Spectral
+- `npm run lint:contracts:strict` - Lint contracts with strict mode (warnings fail the build)
+
+## 🔍 Contract Linting
+
+Contract Catalog uses [Spectral](https://stoplight.io/open-source/spectral) to lint OpenAPI and AsyncAPI specifications, ensuring they follow best practices and maintain high quality.
+
+### Linting Features
+
+- **OpenAPI Linting** - Validates OpenAPI 3.x specifications
+- **AsyncAPI Linting** - Validates AsyncAPI 2.x specifications
+- **Best Practices** - Enforces industry-standard rules and conventions
+- **Customizable Rules** - Configure rules in `.spectral.yml`
+- **CI Integration** - Automatically runs on pull requests and pushes
+
+### Running Linting
+
+```bash
+# Lint all contracts (warnings only, won't fail)
+npm run lint
+
+# Lint contracts in strict mode (warnings will fail the build)
+npm run lint:contracts:strict
+
+# Or specifically lint contracts
+npm run lint:contracts
+```
+
+### Linting Rules
+
+The project uses a combination of built-in Spectral rulesets:
+- `spectral:oas` - OpenAPI-specific rules
+- `spectral:asyncapi` - AsyncAPI-specific rules
+
+Custom rules are configured in `.spectral.yml` to enforce:
+- Required API documentation fields (info, descriptions, tags)
+- Operation IDs for all endpoints
+- Server definitions for APIs
+- Proper schema validation
+- Security best practices
+
+**Note**: Data contract files (ODCS format) are not linted by Spectral as they use a different specification format.
+
 
 ## 📖 AsyncAPI Documentation
 

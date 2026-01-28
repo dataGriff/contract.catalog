@@ -1,0 +1,43 @@
+extends:
+  - spectral:oas
+  - spectral:asyncapi
+
+rules:
+  # OpenAPI specific rules
+  info-contact: warn
+  info-description: warn
+  info-license: off
+  operation-description: warn
+  operation-operationId: warn
+  operation-tags: warn
+  operation-tag-defined: warn  # Changed from error to warn
+  openapi-tags: warn
+  tag-description: warn
+  
+  # AsyncAPI specific rules
+  asyncapi-message-examples: warn
+  asyncapi-operation-description: warn
+  asyncapi-server-variables: warn
+  asyncapi-channel-no-empty-parameter: error
+  asyncapi-channel-servers: warn
+  asyncapi-channel-no-query-nor-fragment: error
+  asyncapi-operation-operationId: warn
+  asyncapi-tags: off  # Disable tags requirement for AsyncAPI
+  asyncapi-info-license: off  # Disable license requirement
+  asyncapi-info-contact-properties: warn
+  asyncapi-latest-version: warn
+  
+  # Custom rules for better API quality
+  no-$ref-siblings: error
+  no-eval-in-markdown: error
+  no-script-tags-in-markdown: error
+  path-keys-no-trailing-slash: error
+  
+  # Security rules
+  oas3-api-servers: error
+  oas3-valid-media-example: warn
+  oas3-valid-schema-example: warn
+  
+  # Additional validation
+  typed-enum: warn
+  oas3-schema: error
