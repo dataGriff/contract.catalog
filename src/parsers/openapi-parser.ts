@@ -10,6 +10,7 @@ export interface OpenAPIContract {
   fileName: string;
   paths: Record<string, any>;
   servers?: Array<{ url: string; description?: string }>;
+  domain?: string;
 }
 
 export function parseOpenAPIContract(filePath: string): OpenAPIContract {

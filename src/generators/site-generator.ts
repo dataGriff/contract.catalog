@@ -1,8 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { parseAllOpenAPIContracts, OpenAPIContract } from '../parsers/openapi-parser.js';
-import { parseAllAsyncAPIContracts, AsyncAPIContract } from '../parsers/asyncapi-parser.js';
-import { parseAllDataContracts, DataContract } from '../parsers/data-parser.js';
+import { parseAllDomains, Domain } from '../parsers/domain-parser.js';
 import { generateIndexPage } from '../templates/index-template.js';
 import { generateAPIPage } from '../templates/api-template.js';
 import { generateEventPage } from '../templates/event-template.js';
@@ -20,50 +18,54 @@ export class StaticSiteGenerator {
   generate(): void {
     console.log('🔍 Scanning contracts directory...');
     
-    // Parse all contracts
-    const apiContracts = parseAllOpenAPIContracts(this.contractsDir);
-    const eventContracts = parseAllAsyncAPIContracts(this.contractsDir);
-    const dataContracts = parseAllDataContracts(this.contractsDir);
+    // Parse all domains
+    const domains = parseAllDomains(this.contractsDir);
 
-    console.log(`Found ${apiContracts.length} API contracts`);
-    console.log(`Found ${eventContracts.length} event contracts`);
-    console.log(`Found ${dataContracts.length} data contracts`);
+    console.log(`Found ${domains.length} domain(s)`);
+    domains.forEach(domain => {
+      console.log(`  - ${domain.displayName}: ${domain.apiContracts.length} API, ${domain.eventContracts.length} Event, ${domain.dataContracts.length} Data contracts`);
+    });
 
     // Create output directories
     this.ensureDir(this.outputDir);
-    this.ensureDir(path.join(this.outputDir, 'api'));
-    this.ensureDir(path.join(this.outputDir, 'events'));
-    this.ensureDir(path.join(this.outputDir, 'data'));
+    
+    // Create a directory for each domain
+    domains.forEach(domain => {
+      this.ensureDir(path.join(this.outputDir, domain.name));
+    });
 
     console.log('\n📝 Generating pages...');
 
     // Generate index page
-    const indexHtml = generateIndexPage(apiContracts, eventContracts, dataContracts);
+    const indexHtml = generateIndexPage(domains);
     fs.writeFileSync(path.join(this.outputDir, 'index.html'), indexHtml);
     console.log('✓ Generated index.html');
 
-    // Generate API contract pages
-    apiContracts.forEach(contract => {
-      const html = generateAPIPage(contract);
-      const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
-      fs.writeFileSync(path.join(this.outputDir, 'api', filename), html);
-      console.log(`✓ Generated api/${filename}`);
-    });
+    // Generate contract pages for each domain
+    domains.forEach(domain => {
+      // Generate API contract pages
+      domain.apiContracts.forEach(contract => {
+        const html = generateAPIPage(contract);
+        const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
+        fs.writeFileSync(path.join(this.outputDir, domain.name, filename), html);
+        console.log(`✓ Generated ${domain.name}/${filename}`);
+      });
 
-    // Generate event contract pages
-    eventContracts.forEach(contract => {
-      const html = generateEventPage(contract);
-      const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
-      fs.writeFileSync(path.join(this.outputDir, 'events', filename), html);
-      console.log(`✓ Generated events/${filename}`);
-    });
+      // Generate event contract pages
+      domain.eventContracts.forEach(contract => {
+        const html = generateEventPage(contract);
+        const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
+        fs.writeFileSync(path.join(this.outputDir, domain.name, filename), html);
+        console.log(`✓ Generated ${domain.name}/${filename}`);
+      });
 
-    // Generate data contract pages
-    dataContracts.forEach(contract => {
-      const html = generateDataPage(contract);
-      const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
-      fs.writeFileSync(path.join(this.outputDir, 'data', filename), html);
-      console.log(`✓ Generated data/${filename}`);
+      // Generate data contract pages
+      domain.dataContracts.forEach(contract => {
+        const html = generateDataPage(contract);
+        const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
+        fs.writeFileSync(path.join(this.outputDir, domain.name, filename), html);
+        console.log(`✓ Generated ${domain.name}/${filename}`);
+      });
     });
 
     console.log('\n✨ Static site generated successfully!');

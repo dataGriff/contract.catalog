@@ -20,13 +20,30 @@ npm install
 
 ### Add Your Contracts
 
-Place your contract files in the appropriate directories:
+Organize your contract files by domain. Each subdirectory under `contracts/` represents a domain and can contain multiple contract types:
 
 ```
 contracts/
-├── openapi/     # OpenAPI YAML/JSON files
-├── asyncapi/    # AsyncAPI YAML/JSON files
-└── data/        # ODCS YAML files (Open Data Contract Standard v3.1.0)
+└── user-management/          # Domain directory
+    ├── user-api.yaml         # OpenAPI contract
+    ├── user-events.yaml      # AsyncAPI contract
+    └── user-contract.yaml    # ODCS data contract
+```
+
+You can have multiple domains:
+
+```
+contracts/
+├── user-management/
+│   ├── user-api.yaml
+│   ├── user-events.yaml
+│   └── user-contract.yaml
+├── payment-processing/
+│   ├── payment-api.yaml
+│   └── payment-events.yaml
+└── inventory/
+    ├── inventory-api.yaml
+    └── inventory-data.yaml
 ```
 
 ### Generate the Catalog
@@ -54,12 +71,13 @@ Then open http://localhost:8080 in your browser.
 
 ```
 contract.catalog/
-├── contracts/              # Your contract files
-│   ├── openapi/           # OpenAPI specifications
-│   ├── asyncapi/          # AsyncAPI specifications
-│   └── data/              # JSON Schema contracts
+├── contracts/              # Your contract files organized by domain
+│   └── user-management/   # Example domain
+│       ├── user-api.yaml       # OpenAPI specification
+│       ├── user-events.yaml    # AsyncAPI specification
+│       └── user-contract.yaml  # ODCS data contract
 ├── src/                   # Source code
-│   ├── parsers/          # Contract parsers
+│   ├── parsers/          # Contract parsers (including domain parser)
 │   ├── generators/       # Site generator
 │   ├── templates/        # HTML templates
 │   └── index.ts          # Entry point
@@ -69,7 +87,7 @@ contract.catalog/
 
 ## 📝 Example Contracts
 
-The repository includes example contracts to help you get started:
+The repository includes example contracts in the `user-management` domain:
 
 - **user-api.yaml** - OpenAPI specification for a User Management API
 - **user-events.yaml** - AsyncAPI specification for user lifecycle events

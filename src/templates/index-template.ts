@@ -1,12 +1,6 @@
-import { OpenAPIContract } from '../parsers/openapi-parser.js';
-import { AsyncAPIContract } from '../parsers/asyncapi-parser.js';
-import { DataContract } from '../parsers/data-parser.js';
+import { Domain } from '../parsers/domain-parser.js';
 
-export function generateIndexPage(
-  apiContracts: OpenAPIContract[],
-  eventContracts: AsyncAPIContract[],
-  dataContracts: DataContract[]
-): string {
+export function generateIndexPage(domains: Domain[]): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -131,55 +125,50 @@ export function generateIndexPage(
     </header>
     
     <div class="container">
-        <div class="section">
-            <h2>🔌 API Contracts (OpenAPI)</h2>
-            ${apiContracts.length > 0 ? `
-            <div class="contract-grid">
-                ${apiContracts.map(contract => `
-                <div class="contract-card">
-                    <span class="badge">OpenAPI</span>
-                    <h3>${escapeHtml(contract.title)}</h3>
-                    <div class="version">Version: ${escapeHtml(contract.version)}</div>
-                    <div class="description">${escapeHtml(contract.description)}</div>
-                    <a href="api/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
-                </div>
-                `).join('')}
+        ${domains.map(domain => `
+            <div class="section">
+                <h2>🏛️ ${escapeHtml(domain.displayName)}</h2>
+                
+                ${domain.apiContracts.length > 0 || domain.eventContracts.length > 0 || domain.dataContracts.length > 0 ? `
+                    <div class="contract-grid">
+                        ${domain.apiContracts.map(contract => `
+                        <div class="contract-card">
+                            <span class="badge">OpenAPI</span>
+                            <h3>${escapeHtml(contract.title)}</h3>
+                            <div class="version">Version: ${escapeHtml(contract.version)}</div>
+                            <div class="description">${escapeHtml(contract.description)}</div>
+                            <a href="${escapeHtml(domain.name)}/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
+                        </div>
+                        `).join('')}
+                        
+                        ${domain.eventContracts.map(contract => `
+                        <div class="contract-card">
+                            <span class="badge">AsyncAPI</span>
+                            <h3>${escapeHtml(contract.title)}</h3>
+                            <div class="version">Version: ${escapeHtml(contract.version)}</div>
+                            <div class="description">${escapeHtml(contract.description)}</div>
+                            <a href="${escapeHtml(domain.name)}/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
+                        </div>
+                        `).join('')}
+                        
+                        ${domain.dataContracts.map(contract => `
+                        <div class="contract-card">
+                            <span class="badge">ODCS v3.1</span>
+                            <h3>${escapeHtml(contract.title)}</h3>
+                            <div class="description">${escapeHtml(contract.description)}</div>
+                            <a href="${escapeHtml(domain.name)}/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
+                        </div>
+                        `).join('')}
+                    </div>
+                ` : '<div class="empty-state">No contracts found in this domain</div>'}
             </div>
-            ` : '<div class="empty-state">No API contracts found</div>'}
-        </div>
-
-        <div class="section">
-            <h2>📡 Event Contracts (AsyncAPI)</h2>
-            ${eventContracts.length > 0 ? `
-            <div class="contract-grid">
-                ${eventContracts.map(contract => `
-                <div class="contract-card">
-                    <span class="badge">AsyncAPI</span>
-                    <h3>${escapeHtml(contract.title)}</h3>
-                    <div class="version">Version: ${escapeHtml(contract.version)}</div>
-                    <div class="description">${escapeHtml(contract.description)}</div>
-                    <a href="events/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
-                </div>
-                `).join('')}
+        `).join('')}
+        
+        ${domains.length === 0 ? `
+            <div class="section">
+                <div class="empty-state">No domains found. Add contract files to domain directories under contracts/</div>
             </div>
-            ` : '<div class="empty-state">No event contracts found</div>'}
-        </div>
-
-        <div class="section">
-            <h2>📊 Data Contracts (ODCS)</h2>
-            ${dataContracts.length > 0 ? `
-            <div class="contract-grid">
-                ${dataContracts.map(contract => `
-                <div class="contract-card">
-                    <span class="badge">ODCS v3.1</span>
-                    <h3>${escapeHtml(contract.title)}</h3>
-                    <div class="description">${escapeHtml(contract.description)}</div>
-                    <a href="data/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
-                </div>
-                `).join('')}
-            </div>
-            ` : '<div class="empty-state">No data contracts found</div>'}
-        </div>
+        ` : ''}
     </div>
 
     <footer>

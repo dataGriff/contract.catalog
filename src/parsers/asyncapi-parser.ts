@@ -10,6 +10,7 @@ export interface AsyncAPIContract {
   fileName: string;
   channels: Record<string, any>;
   servers?: Record<string, any>;
+  domain?: string;
 }
 
 export function parseAsyncAPIContract(filePath: string): AsyncAPIContract {
