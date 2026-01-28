@@ -1,0 +1,95 @@
+asyncapi: 2.6.0
+info:
+  title: User Events
+  version: 1.0.0
+  description: Events published when user operations occur
+  contact:
+    name: Events Team
+    email: events@example.com
+servers:
+  production:
+    url: kafka.example.com:9092
+    protocol: kafka
+    description: Production Kafka cluster
+channels:
+  user.created:
+    description: Channel for user creation events
+    publish:
+      summary: User created event
+      description: Published when a new user is created
+      operationId: onUserCreated
+      message:
+        $ref: '#/components/messages/UserCreated'
+  user.updated:
+    description: Channel for user update events
+    publish:
+      summary: User updated event
+      description: Published when a user is updated
+      operationId: onUserUpdated
+      message:
+        $ref: '#/components/messages/UserUpdated'
+  user.deleted:
+    description: Channel for user deletion events
+    publish:
+      summary: User deleted event
+      description: Published when a user is deleted
+      operationId: onUserDeleted
+      message:
+        $ref: '#/components/messages/UserDeleted'
+components:
+  messages:
+    UserCreated:
+      name: UserCreated
+      title: User Created Event
+      summary: Event emitted when a user is created
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserEventPayload'
+    UserUpdated:
+      name: UserUpdated
+      title: User Updated Event
+      summary: Event emitted when a user is updated
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserEventPayload'
+    UserDeleted:
+      name: UserDeleted
+      title: User Deleted Event
+      summary: Event emitted when a user is deleted
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          userId:
+            type: string
+            description: ID of the deleted user
+          deletedAt:
+            type: string
+            format: date-time
+            description: Timestamp when user was deleted
+        required:
+          - userId
+          - deletedAt
+  schemas:
+    UserEventPayload:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Unique user identifier
+        email:
+          type: string
+          format: email
+          description: User email address
+        name:
+          type: string
+          description: User full name
+        timestamp:
+          type: string
+          format: date-time
+          description: Event timestamp
+      required:
+        - userId
+        - email
+        - name
+        - timestamp
