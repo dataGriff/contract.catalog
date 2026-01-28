@@ -166,15 +166,15 @@ export function generateIndexPage(
         </div>
 
         <div class="section">
-            <h2>📊 Data Contracts (JSON Schema)</h2>
+            <h2>📊 Data Contracts (ODCS)</h2>
             ${dataContracts.length > 0 ? `
             <div class="contract-grid">
                 ${dataContracts.map(contract => `
                 <div class="contract-card">
-                    <span class="badge">JSON Schema</span>
+                    <span class="badge">ODCS v3.1</span>
                     <h3>${escapeHtml(contract.title)}</h3>
                     <div class="description">${escapeHtml(contract.description)}</div>
-                    <a href="data/${escapeHtml(contract.fileName.replace('.json', '.html'))}">View Details →</a>
+                    <a href="data/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
                 </div>
                 `).join('')}
             </div>

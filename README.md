@@ -1,6 +1,6 @@
 # Contract Catalog
 
-A simple static website generator for documenting your architecture through contracts. Supports OpenAPI, AsyncAPI, and JSON Schema data contracts - think of it as an "Event Catalog lite" solution.
+A simple static website generator for documenting your architecture through contracts. Supports OpenAPI, AsyncAPI, and Open Data Contract Standard (ODCS) data contracts - think of it as an "Event Catalog lite" solution.
 
 ## 🎯 Overview
 
@@ -8,7 +8,7 @@ Contract Catalog automatically generates a beautiful, navigable static website f
 
 - **API Contracts** (OpenAPI 3.0) - REST API specifications
 - **Event Contracts** (AsyncAPI 2.x) - Event-driven architecture documentation
-- **Data Contracts** (JSON Schema) - Data structure definitions
+- **Data Contracts** (ODCS v3.1.0) - Data structure definitions using Open Data Contract Standard
 
 ## 🚀 Quick Start
 
@@ -26,7 +26,7 @@ Place your contract files in the appropriate directories:
 contracts/
 ├── openapi/     # OpenAPI YAML/JSON files
 ├── asyncapi/    # AsyncAPI YAML/JSON files
-└── data/        # JSON Schema files
+└── data/        # ODCS YAML files (Open Data Contract Standard v3.1.0)
 ```
 
 ### Generate the Catalog
@@ -73,7 +73,7 @@ The repository includes example contracts to help you get started:
 
 - **user-api.yaml** - OpenAPI specification for a User Management API
 - **user-events.yaml** - AsyncAPI specification for user lifecycle events
-- **user-schema.json** - JSON Schema for user data structure
+- **user-contract.yaml** - ODCS v3.1.0 data contract for user data structure
 
 ## 🛠️ Available Scripts
 
@@ -123,26 +123,41 @@ channels:
 
 ### Adding Data Contracts
 
-Create a JSON Schema file in `contracts/data/`:
+Create an ODCS v3.1.0 YAML file in `contracts/data/`:
 
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "My Data Contract",
-  "type": "object",
-  "properties": {
-    "id": { "type": "string" },
-    "name": { "type": "string" }
-  },
-  "required": ["id", "name"]
-}
+```yaml
+domain: my-domain
+dataProduct: my-data-product
+version: 1.0.0
+status: active
+kind: DataContract
+apiVersion: v3.1.0
+
+description:
+  purpose: Define the structure and rules for my data
+  usage: Analytics and reporting
+
+schema:
+  - name: my_table
+    physicalName: my_table
+    description: My data table
+    properties:
+      - name: id
+        physicalName: id
+        logicalType: string
+        required: true
+        primaryKey: true
+      - name: name
+        physicalName: name
+        logicalType: string
+        required: true
 ```
 
 ## 🎨 Features
 
 - **Simple and Clean UI** - Modern, responsive design
 - **Zero Configuration** - Works out of the box
-- **Multiple Contract Types** - OpenAPI, AsyncAPI, and JSON Schema
+- **Multiple Contract Types** - OpenAPI, AsyncAPI, and ODCS v3.1.0
 - **Static Output** - Deploy anywhere (GitHub Pages, Netlify, etc.)
 - **Fast Generation** - Lightweight and efficient
 

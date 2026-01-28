@@ -61,7 +61,7 @@ export class StaticSiteGenerator {
     // Generate data contract pages
     dataContracts.forEach(contract => {
       const html = generateDataPage(contract);
-      const filename = contract.fileName.replace('.json', '.html');
+      const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
       fs.writeFileSync(path.join(this.outputDir, 'data', filename), html);
       console.log(`✓ Generated data/${filename}`);
     });
