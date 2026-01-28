@@ -72,7 +72,8 @@ function parseOpenAPIContract(filePath: string, domain: string): OpenAPIContract
     fileName: path.basename(filePath),
     paths: spec.paths || {},
     servers: spec.servers || [],
-    domain
+    domain,
+    fullSpec: spec
   };
 }
 

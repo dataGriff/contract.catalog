@@ -98,15 +98,37 @@ The repository includes example contracts in the `user-management` domain:
 ## 🛠️ Available Scripts
 
 - `npm run build` - Compile TypeScript to JavaScript
-- `npm run generate` - Generate the static site from contracts (auto-uses datacontract-cli if available)
+- `npm run generate` - Generate the static site from contracts (includes AsyncAPI documentation, auto-uses datacontract-cli if available)
 - `npm run serve` - Serve the generated site locally
 - `npm run dev` - Build, generate, and serve in one command
+
+## 📖 AsyncAPI Documentation
+
+AsyncAPI contracts receive special treatment with professional, interactive HTML documentation generated using the official [@asyncapi/generator](https://github.com/asyncapi/generator) and [@asyncapi/html-template](https://github.com/asyncapi/html-template).
+
+### Features of AsyncAPI Documentation
+
+- **Rich Interactive UI** - Beautiful, navigable interface with expand/collapse sections
+- **Complete Specification Coverage** - Servers, channels, operations, messages, and schemas
+- **Schema Visualization** - Visual representation of message payloads and data structures
+- **Operation Details** - Full documentation of publish/subscribe operations
+- **Example Payloads** - Interactive examples for all messages
+- **Professional Styling** - Official AsyncAPI branding and design
+
+### Accessing AsyncAPI Documentation
+
+When you generate the site, AsyncAPI contracts are automatically processed to create:
+
+1. **Summary Page** - A quick overview at `/user-management/user-events.html` with channels and servers
+2. **Complete Documentation** - Full interactive docs at `/asyncapi-docs/user-management/user-events/index.html`
+
+The summary page includes a prominent "View Complete AsyncAPI Documentation" button that links to the full documentation.
 
 ## 📖 Usage Guide
 
 ### Adding OpenAPI Contracts
 
-Create a YAML or JSON file in `contracts/openapi/`:
+Create a YAML or JSON file in your domain directory (e.g., `contracts/user-management/`):
 
 ```yaml
 openapi: 3.0.0
@@ -122,6 +144,13 @@ paths:
         '200':
           description: Success
 ```
+
+The generated documentation will include:
+- **Interactive API documentation** with Redoc
+- Detailed endpoint descriptions with request/response schemas
+- Code samples and examples
+- Searchable API reference
+- Downloadable OpenAPI specification
 
 ### Adding AsyncAPI Contracts
 
@@ -282,6 +311,12 @@ Learn more at [datacontract-cli documentation](https://cli.datacontract.com/).
 ## 🎨 Features
 
 - **Simple and Clean UI** - Modern, responsive design
+- **Professional OpenAPI Documentation** - Beautiful, interactive API docs powered by Redoc
+  - Complete API documentation with request/response examples
+  - Interactive schema exploration
+  - Search functionality
+  - Downloadable OpenAPI specifications
+- **Professional AsyncAPI Documentation** - Uses official AsyncAPI Generator with HTML template for rich, interactive event documentation
 - **Zero Configuration** - Works out of the box
 - **Multiple Contract Types** - OpenAPI, AsyncAPI, and ODCS v3.1.0
 - **Comprehensive ODCS Support** - Complete visualization of all ODCS v3.1.0 fields including:
@@ -297,6 +332,7 @@ Learn more at [datacontract-cli documentation](https://cli.datacontract.com/).
 - **Static Output** - Deploy anywhere (GitHub Pages, Netlify, etc.)
 - **Fast Generation** - Lightweight and efficient
 - **Optional Enhanced Documentation** - Integration with datacontract-cli for advanced ODCS catalog features
+- **Offline-Ready** - All documentation assets are bundled locally
 
 ## 📦 Deployment
 

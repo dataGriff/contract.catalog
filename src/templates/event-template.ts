@@ -1,6 +1,11 @@
 import { AsyncAPIContract } from '../parsers/asyncapi-parser.js';
 
 export function generateEventPage(contract: AsyncAPIContract): string {
+  const docName = contract.fileName.replace(/\.(yaml|yml|json)$/, '');
+  const asyncapiDocLink = contract.domain 
+    ? `../asyncapi-docs/${contract.domain}/${docName}/index.html`
+    : `../asyncapi-docs/${docName}/index.html`;
+    
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -100,6 +105,22 @@ export function generateEventPage(contract: AsyncAPIContract): string {
             font-family: 'Courier New', monospace;
             color: #333;
         }
+        .asyncapi-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 8px;
+            display: inline-block;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .asyncapi-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -112,6 +133,8 @@ export function generateEventPage(contract: AsyncAPIContract): string {
     </header>
     
     <div class="container">
+        <a href="${asyncapiDocLink}" class="asyncapi-link">📖 View Complete AsyncAPI Documentation →</a>
+        
         ${contract.description ? `
         <div class="section">
             <h2>Description</h2>
