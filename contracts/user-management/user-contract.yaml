@@ -1,5 +1,3 @@
-# Open Data Contract Standard (ODCS) v3.1.0
-# User data contract
 domain: user-management
 dataProduct: user-data
 version: 1.0.0
@@ -7,256 +5,200 @@ status: active
 id: user-001
 kind: DataContract
 apiVersion: v3.1.0
-
 description:
   purpose: Define the structure and rules for user data in the system
   limitations: Does not include authentication tokens or passwords
   usage: User management, reporting, and analytics
-
-# Team information
 team:
   name: user-management-team
   description: Team responsible for user data and management
   members:
-    - username: data-engineering
-      role: Data Engineer
-      dateIn: "2024-01-01"
-
-# Schema definition
+  - username: data-engineering
+    role: Data Engineer
+    dateIn: '2024-01-01'
 schema:
-  - id: user_table
-    name: users
-    physicalName: users
-    physicalType: table
-    businessName: User Records
-    description: Core user data for all system users
-    tags: ['user', 'core-data', 'pii']
-    dataGranularityDescription: One record per user
-    properties:
-      - id: user_id
-        name: id
-        physicalName: id
-        primaryKey: true
-        primaryKeyPosition: 1
-        businessName: User Identifier
-        logicalType: string
-        physicalType: varchar(50)
-        required: true
-        unique: true
-        description: Unique identifier for the user
-        criticalDataElement: true
-        classification: restricted
-        tags: ['uid', 'primary-key']
-        examples:
-          - "usr_abc123"
-          - "usr_xyz789"
-        quality:
-          - metric: nullValues
-            mustBe: 0
-            description: User ID cannot be null
-            dimension: completeness
-            type: library
-            severity: error
-            businessImpact: critical
-      
-      - id: user_email
-        name: email
-        physicalName: email
-        primaryKey: false
-        businessName: Email Address
-        logicalType: string
-        physicalType: varchar(255)
-        required: true
-        unique: true
-        description: User's email address for communication and login
-        criticalDataElement: true
-        classification: restricted
-        tags: ['pii', 'contact']
-        examples:
-          - "user@example.com"
-          - "john.doe@company.com"
-        quality:
-          - metric: validFormat
-            description: Must be valid email format
-            dimension: validity
-            type: library
-            severity: error
-            businessImpact: critical
-      
-      - id: user_name
-        name: name
-        physicalName: name
-        primaryKey: false
-        businessName: Full Name
-        logicalType: string
-        physicalType: varchar(100)
-        required: true
-        description: User's full name
-        criticalDataElement: false
-        classification: restricted
-        tags: ['pii']
-        examples:
-          - "John Doe"
-          - "Jane Smith"
-        quality:
-          - metric: stringLength
-            mustBeGreaterThan: 0
-            mustBeLessThan: 101
-            description: Name must be between 1-100 characters
-            dimension: validity
-            type: library
-            severity: error
-      
-      - id: user_age
-        name: age
-        physicalName: age
-        primaryKey: false
-        businessName: User Age
-        logicalType: integer
-        physicalType: integer
-        required: false
-        description: User's age in years
-        criticalDataElement: false
-        classification: restricted
-        tags: ['demographics']
-        examples:
-          - 25
-          - 42
-        quality:
-          - metric: range
-            mustBeGreaterThan: 0
-            mustBeLessThan: 150
-            description: Age must be realistic (0-150)
-            dimension: validity
-            type: library
-            severity: warning
-      
-      - id: user_status
-        name: status
-        physicalName: status
-        primaryKey: false
-        businessName: Account Status
-        logicalType: string
-        physicalType: varchar(20)
-        required: true
-        description: Current status of the user account
-        criticalDataElement: true
-        classification: public
-        tags: ['status']
-        examples:
-          - "active"
-          - "inactive"
-          - "suspended"
-        quality:
-          - metric: allowedValues
-            mustBeOneOf: ['active', 'inactive', 'suspended']
-            description: Status must be one of the allowed values
-            dimension: validity
-            type: library
-            severity: error
-            businessImpact: operational
-      
-      - id: user_roles
-        name: roles
-        physicalName: roles
-        primaryKey: false
-        businessName: User Roles
-        logicalType: array
-        physicalType: varchar[]
-        required: false
-        description: Array of roles assigned to the user
-        criticalDataElement: false
-        classification: restricted
-        tags: ['permissions']
-        examples:
-          - ['admin', 'user']
-          - ['user']
-          - ['admin', 'moderator']
-      
-      - id: user_created_at
-        name: createdAt
-        physicalName: created_at
-        primaryKey: false
-        businessName: Creation Date
-        logicalType: timestamp
-        physicalType: timestamp
-        required: true
-        description: Timestamp when the user was created
-        criticalDataElement: false
-        classification: public
-        tags: ['audit']
-        examples:
-          - "2024-01-15T10:30:00Z"
-          - "2024-02-20T14:45:00Z"
-        quality:
-          - metric: notFutureDate
-            description: Creation date cannot be in the future
-            dimension: validity
-            type: library
-            severity: error
-      
-      - id: user_updated_at
-        name: updatedAt
-        physicalName: updated_at
-        primaryKey: false
-        businessName: Last Update Date
-        logicalType: timestamp
-        physicalType: timestamp
-        required: false
-        description: Timestamp when the user was last updated
-        criticalDataElement: false
-        classification: public
-        tags: ['audit']
-        examples:
-          - "2024-03-15T10:30:00Z"
-          - "2024-04-20T14:45:00Z"
-    
+- id: user_table
+  name: users
+  physicalName: users
+  physicalType: table
+  businessName: User Records
+  description: Core user data for all system users
+  tags:
+  - user
+  - core-data
+  - pii
+  dataGranularityDescription: One record per user
+  properties:
+  - id: user_id
+    name: id
+    physicalName: id
+    primaryKey: true
+    primaryKeyPosition: 1
+    businessName: User Identifier
+    logicalType: string
+    physicalType: varchar(50)
+    required: true
+    unique: true
+    description: Unique identifier for the user
+    criticalDataElement: true
+    classification: restricted
+    tags:
+    - uid
+    - primary-key
+    examples:
+    - usr_abc123
+    - usr_xyz789
     quality:
-      - metric: rowCount
-        mustBeGreaterThan: 0
-        type: library
-        description: User table must contain at least one record
-        dimension: completeness
-        severity: warning
-        businessImpact: operational
-
-# Data quality expectations
-quality:
-  - metric: freshness
-    value: 24
-    unit: hours
-    description: Data should be updated at least daily
-    dimension: timeliness
+    - metric: nullValues
+      mustBe: 0
+      description: User ID cannot be null
+      dimension: completeness
+      type: library
+      severity: error
+      businessImpact: critical
+  - id: user_email
+    name: email
+    physicalName: email
+    primaryKey: false
+    businessName: Email Address
+    logicalType: string
+    physicalType: varchar(255)
+    required: true
+    unique: true
+    description: User's email address for communication and login
+    criticalDataElement: true
+    classification: restricted
+    tags:
+    - pii
+    - contact
+    examples:
+    - user@example.com
+    - john.doe@company.com
+  - id: user_name
+    name: name
+    physicalName: name
+    primaryKey: false
+    businessName: Full Name
+    logicalType: string
+    physicalType: varchar(100)
+    required: true
+    description: User's full name
+    criticalDataElement: false
+    classification: restricted
+    tags:
+    - pii
+    examples:
+    - John Doe
+    - Jane Smith
+  - id: user_age
+    name: age
+    physicalName: age
+    primaryKey: false
+    businessName: User Age
+    logicalType: integer
+    physicalType: integer
+    required: false
+    description: User's age in years
+    criticalDataElement: false
+    classification: restricted
+    tags:
+    - demographics
+    examples:
+    - 25
+    - 42
+  - id: user_status
+    name: status
+    physicalName: status
+    primaryKey: false
+    businessName: Account Status
+    logicalType: string
+    physicalType: varchar(20)
+    required: true
+    description: Current status of the user account
+    criticalDataElement: true
+    classification: public
+    tags:
+    - status
+    examples:
+    - active
+    - inactive
+    - suspended
+  - id: user_roles
+    name: roles
+    physicalName: roles
+    primaryKey: false
+    businessName: User Roles
+    logicalType: array
+    physicalType: varchar[]
+    required: false
+    description: Array of roles assigned to the user
+    criticalDataElement: false
+    classification: restricted
+    tags:
+    - permissions
+    examples:
+    - - admin
+      - user
+    - - user
+    - - admin
+      - moderator
+  - id: user_created_at
+    name: createdAt
+    physicalName: created_at
+    primaryKey: false
+    businessName: Creation Date
+    logicalType: timestamp
+    physicalType: timestamp
+    required: true
+    description: Timestamp when the user was created
+    criticalDataElement: false
+    classification: public
+    tags:
+    - audit
+    examples:
+    - '2024-01-15T10:30:00Z'
+    - '2024-02-20T14:45:00Z'
+  - id: user_updated_at
+    name: updatedAt
+    physicalName: updated_at
+    primaryKey: false
+    businessName: Last Update Date
+    logicalType: timestamp
+    physicalType: timestamp
+    required: false
+    description: Timestamp when the user was last updated
+    criticalDataElement: false
+    classification: public
+    tags:
+    - audit
+    examples:
+    - '2024-03-15T10:30:00Z'
+    - '2024-04-20T14:45:00Z'
+  quality:
+  - metric: rowCount
+    mustBeGreaterThan: 0
     type: library
+    description: User table must contain at least one record
+    dimension: completeness
     severity: warning
-
-# SLA properties
+    businessImpact: operational
 slaProperties:
-  - property: generalAvailability
-    value: "2024-01-01T00:00:00Z"
-  - property: retention
-    value: 7
-    unit: years
-  - property: frequency
-    value: 1
-    unit: day
-    description: Data is updated daily
-
-# Support information
-support:
-  - channel: email
-    value: user-team@example.com
-  - channel: slack
-    value: "#user-management"
-
-# Roles and access
+- property: generalAvailability
+  value: '2024-01-01T00:00:00Z'
+- property: retention
+  value: 7
+  unit: years
+- property: frequency
+  value: 1
+  unit: day
+  description: Data is updated daily
 roles:
-  - role: user_data_reader
-    access: read
-    description: Read-only access to user data
-  - role: user_data_writer
-    access: write
-    description: Read and write access to user data
-  - role: user_data_admin
-    access: admin
-    description: Full administrative access to user data
+- role: user_data_reader
+  access: read
+  description: Read-only access to user data
+- role: user_data_writer
+  access: write
+  description: Read and write access to user data
+- role: user_data_admin
+  access: admin
+  description: Full administrative access to user data
