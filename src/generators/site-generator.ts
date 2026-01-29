@@ -38,6 +38,17 @@ export class StaticSiteGenerator {
     } catch (error: any) {
       // Log the actual error for debugging
       const errorMessage = error.message || 'Unknown error';
+      const errorOutput = error.stderr?.toString() || error.stdout?.toString() || errorMessage;
+      
+      // In CI environment, fail the build when datacontract-cli export fails
+      if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') {
+        console.error(`\n❌ ERROR: Failed to generate data contract with datacontract-cli in CI environment`);
+        console.error(`   Contract: ${contractPath}`);
+        console.error(`   Error: ${errorOutput}`);
+        console.error(`\nIn CI environments, all data contract exports must succeed.`);
+        throw new Error(`Data contract CLI export failed for ${contractPath}: ${errorOutput}`);
+      }
+      
       console.warn(`  ⚠ Failed to generate with datacontract-cli: ${errorMessage.split('\n')[0]}`);
       console.warn(`    Using fallback template`);
       return false;
