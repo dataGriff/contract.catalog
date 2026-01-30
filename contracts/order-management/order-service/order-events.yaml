@@ -1,0 +1,178 @@
+asyncapi: 2.6.0
+info:
+  title: Order Events
+  version: 1.0.0
+  description: Events published when order operations occur. These events contain user references from the User Management domain for cross-domain integration.
+  contact:
+    name: Events Team
+    email: events@example.com
+servers:
+  production:
+    url: kafka.example.com:9092
+    protocol: kafka
+    description: Production Kafka cluster
+channels:
+  order.created:
+    description: Channel for order creation events
+    publish:
+      summary: Order created event
+      description: Published when a new order is created. Includes userId from User Management domain for downstream consumers.
+      operationId: onOrderCreated
+      message:
+        $ref: '#/components/messages/OrderCreated'
+  order.status.updated:
+    description: Channel for order status update events
+    publish:
+      summary: Order status updated event
+      description: Published when an order status changes (e.g., from pending to confirmed)
+      operationId: onOrderStatusUpdated
+      message:
+        $ref: '#/components/messages/OrderStatusUpdated'
+  order.completed:
+    description: Channel for order completion events
+    publish:
+      summary: Order completed event
+      description: Published when an order is successfully delivered. Payment service and notification service consume this event.
+      operationId: onOrderCompleted
+      message:
+        $ref: '#/components/messages/OrderCompleted'
+  order.cancelled:
+    description: Channel for order cancellation events
+    publish:
+      summary: Order cancelled event
+      description: Published when an order is cancelled. Triggers refund processing in Payment service.
+      operationId: onOrderCancelled
+      message:
+        $ref: '#/components/messages/OrderCancelled'
+components:
+  messages:
+    OrderCreated:
+      name: OrderCreated
+      title: Order Created Event
+      summary: Event emitted when an order is created
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/OrderEventPayload'
+    OrderStatusUpdated:
+      name: OrderStatusUpdated
+      title: Order Status Updated Event
+      summary: Event emitted when an order status is updated
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          orderId:
+            type: string
+            description: Unique order identifier
+          userId:
+            type: string
+            description: User ID from User Management domain (cross-domain reference)
+          previousStatus:
+            type: string
+            description: Previous order status
+          newStatus:
+            type: string
+            description: New order status
+          timestamp:
+            type: string
+            format: date-time
+            description: Event timestamp
+        required:
+          - orderId
+          - userId
+          - previousStatus
+          - newStatus
+          - timestamp
+    OrderCompleted:
+      name: OrderCompleted
+      title: Order Completed Event
+      summary: Event emitted when an order is completed
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          orderId:
+            type: string
+            description: Unique order identifier
+          userId:
+            type: string
+            description: User ID from User Management domain (cross-domain reference)
+          totalAmount:
+            type: number
+            description: Total order amount
+          currency:
+            type: string
+            description: Currency code
+          completedAt:
+            type: string
+            format: date-time
+            description: Completion timestamp
+        required:
+          - orderId
+          - userId
+          - totalAmount
+          - currency
+          - completedAt
+    OrderCancelled:
+      name: OrderCancelled
+      title: Order Cancelled Event
+      summary: Event emitted when an order is cancelled
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          orderId:
+            type: string
+            description: Unique order identifier
+          userId:
+            type: string
+            description: User ID from User Management domain (cross-domain reference)
+          cancellationReason:
+            type: string
+            description: Reason for cancellation
+          refundRequired:
+            type: boolean
+            description: Whether a refund is required
+          cancelledAt:
+            type: string
+            format: date-time
+            description: Cancellation timestamp
+        required:
+          - orderId
+          - userId
+          - refundRequired
+          - cancelledAt
+  schemas:
+    OrderEventPayload:
+      type: object
+      description: Standard order event payload with cross-domain user reference
+      properties:
+        orderId:
+          type: string
+          description: Unique order identifier
+        userId:
+          type: string
+          description: User ID from User Management domain (enables integration with user services)
+        status:
+          type: string
+          description: Current order status
+        totalAmount:
+          type: number
+          description: Total order amount
+        currency:
+          type: string
+          description: Currency code
+        itemCount:
+          type: integer
+          description: Number of items in the order
+        timestamp:
+          type: string
+          format: date-time
+          description: Event timestamp
+      required:
+        - orderId
+        - userId
+        - status
+        - totalAmount
+        - currency
+        - timestamp

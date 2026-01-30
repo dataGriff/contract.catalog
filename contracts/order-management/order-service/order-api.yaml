@@ -1,0 +1,260 @@
+openapi: 3.0.0
+info:
+  title: Order Management API
+  version: 1.0.0
+  description: API for managing orders in the system. Integrates with User Management API for customer information.
+  contact:
+    name: Order Team
+    email: orders@example.com
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+paths:
+  /orders:
+    get:
+      summary: List all orders
+      description: Retrieve a list of all orders in the system
+      operationId: listOrders
+      tags:
+        - Orders
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter orders by user ID (from User Management domain)
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, confirmed, shipped, delivered, cancelled]
+          description: Filter orders by status
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+    post:
+      summary: Create a new order
+      description: Create a new order for a user. Requires valid userId from User Management API.
+      operationId: createOrder
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Invalid request (e.g., invalid userId)
+  /orders/{orderId}:
+    get:
+      summary: Get order by ID
+      description: Retrieve a specific order by its ID
+      operationId: getOrder
+      tags:
+        - Orders
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The order ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: Order not found
+    patch:
+      summary: Update order status
+      description: Update the status of an order
+      operationId: updateOrderStatus
+      tags:
+        - Orders
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The order ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrderStatusRequest'
+      responses:
+        '200':
+          description: Order status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: Order not found
+  /orders/{orderId}/items:
+    get:
+      summary: Get order items
+      description: Retrieve all items in a specific order
+      operationId: getOrderItems
+      tags:
+        - Orders
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The order ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderItem'
+components:
+  schemas:
+    Order:
+      type: object
+      description: Order entity with reference to User Management domain
+      properties:
+        id:
+          type: string
+          description: Unique order identifier
+        userId:
+          type: string
+          description: User ID from User Management API (cross-domain reference)
+        status:
+          type: string
+          enum: [pending, confirmed, shipped, delivered, cancelled]
+          description: Current order status
+        totalAmount:
+          type: number
+          format: decimal
+          description: Total order amount
+        currency:
+          type: string
+          description: Currency code (e.g., USD, EUR)
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          description: List of items in the order
+        createdAt:
+          type: string
+          format: date-time
+          description: Order creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+      required:
+        - id
+        - userId
+        - status
+        - totalAmount
+        - currency
+        - createdAt
+    CreateOrderRequest:
+      type: object
+      description: Request to create a new order
+      properties:
+        userId:
+          type: string
+          description: User ID from User Management API (must be a valid user)
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrderItemRequest'
+          description: List of items to include in the order
+          minItems: 1
+        currency:
+          type: string
+          description: Currency code (e.g., USD, EUR)
+          default: USD
+      required:
+        - userId
+        - items
+    CreateOrderItemRequest:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: Product identifier
+        quantity:
+          type: integer
+          description: Quantity ordered
+          minimum: 1
+        price:
+          type: number
+          format: decimal
+          description: Price per unit
+      required:
+        - productId
+        - quantity
+        - price
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique order item identifier
+        orderId:
+          type: string
+          description: Reference to parent order
+        productId:
+          type: string
+          description: Product identifier
+        productName:
+          type: string
+          description: Product name
+        quantity:
+          type: integer
+          description: Quantity ordered
+        price:
+          type: number
+          format: decimal
+          description: Price per unit
+        subtotal:
+          type: number
+          format: decimal
+          description: Item subtotal (quantity * price)
+      required:
+        - id
+        - orderId
+        - productId
+        - quantity
+        - price
+        - subtotal
+    UpdateOrderStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, confirmed, shipped, delivered, cancelled]
+          description: New order status
+      required:
+        - status

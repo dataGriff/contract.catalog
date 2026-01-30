@@ -1,0 +1,232 @@
+domain: order-management
+dataProduct: order-data
+version: 1.0.0
+status: active
+id: order-001
+kind: DataContract
+apiVersion: v3.1.0
+description:
+  purpose: Define the structure and rules for order data in the system with cross-domain integration to user-management
+  limitations: Does not include payment information (see payment-service)
+  usage: Order management, fulfillment, reporting, and analytics. Integrates with user-management domain via userId foreign key.
+team:
+  name: order-management-team
+  description: Team responsible for order data and management
+  members:
+  - username: order-engineering
+    role: Data Engineer
+    dateIn: '2024-01-01'
+  - username: fulfillment-lead
+    role: Product Owner
+    dateIn: '2024-02-01'
+schema:
+- id: order_table
+  name: orders
+  physicalName: orders
+  physicalType: table
+  businessName: Order Records
+  description: Core order data for all customer orders. Contains foreign key reference to users table in user-management domain.
+  tags:
+  - order
+  - core-data
+  - transactional
+  dataGranularityDescription: One record per order
+  properties:
+  - id: order_id
+    name: id
+    physicalName: id
+    primaryKey: true
+    primaryKeyPosition: 1
+    businessName: Order Identifier
+    logicalType: string
+    physicalType: varchar(50)
+    required: true
+    unique: true
+    description: Unique identifier for the order
+    criticalDataElement: true
+    classification: public
+    tags:
+    - uid
+    - primary-key
+    examples:
+    - ord_abc123
+    - ord_xyz789
+    quality:
+    - metric: nullValues
+      mustBe: 0
+      description: Order ID cannot be null
+      dimension: completeness
+      type: library
+      severity: error
+      businessImpact: critical
+  - id: order_user_id
+    name: userId
+    physicalName: user_id
+    primaryKey: false
+    businessName: Customer User ID
+    logicalType: string
+    physicalType: varchar(50)
+    required: true
+    description: Foreign key reference to user ID from user-management domain. Enables cross-domain integration for customer information.
+    criticalDataElement: true
+    classification: restricted
+    tags:
+    - foreign-key
+    - cross-domain
+    - user-reference
+    examples:
+    - usr_abc123
+    - usr_xyz789
+    quality:
+    - metric: nullValues
+      mustBe: 0
+      description: User ID cannot be null
+      dimension: completeness
+      type: library
+      severity: error
+      businessImpact: critical
+    - metric: referentialIntegrity
+      mustBe: 100
+      description: All user IDs must exist in user-management.users table
+      dimension: validity
+      type: custom
+      severity: error
+      businessImpact: critical
+  - id: order_status
+    name: status
+    physicalName: status
+    primaryKey: false
+    businessName: Order Status
+    logicalType: string
+    physicalType: varchar(20)
+    required: true
+    description: Current status of the order
+    criticalDataElement: true
+    classification: public
+    tags:
+    - status
+    - workflow
+    examples:
+    - pending
+    - confirmed
+    - shipped
+    - delivered
+    - cancelled
+    quality:
+    - metric: allowedValues
+      mustBeIn: [pending, confirmed, shipped, delivered, cancelled]
+      description: Status must be one of the allowed values
+      dimension: validity
+      type: library
+      severity: error
+  - id: order_total_amount
+    name: totalAmount
+    physicalName: total_amount
+    primaryKey: false
+    businessName: Total Order Amount
+    logicalType: decimal
+    physicalType: decimal(10,2)
+    required: true
+    description: Total amount for the order
+    criticalDataElement: true
+    classification: restricted
+    tags:
+    - financial
+    - amount
+    examples:
+    - 99.99
+    - 249.50
+    quality:
+    - metric: numericRange
+      mustBeGreaterThan: 0
+      description: Order amount must be positive
+      dimension: validity
+      type: library
+      severity: error
+  - id: order_currency
+    name: currency
+    physicalName: currency
+    primaryKey: false
+    businessName: Currency Code
+    logicalType: string
+    physicalType: varchar(3)
+    required: true
+    description: Currency code for the order amount
+    criticalDataElement: false
+    classification: public
+    tags:
+    - financial
+    - currency
+    examples:
+    - USD
+    - EUR
+    - GBP
+  - id: order_created_at
+    name: createdAt
+    physicalName: created_at
+    primaryKey: false
+    businessName: Order Creation Date
+    logicalType: timestamp
+    physicalType: timestamp
+    required: true
+    description: Timestamp when the order was created
+    criticalDataElement: false
+    classification: public
+    tags:
+    - audit
+    - temporal
+    examples:
+    - '2024-01-15T10:30:00Z'
+    - '2024-02-20T14:45:00Z'
+  - id: order_updated_at
+    name: updatedAt
+    physicalName: updated_at
+    primaryKey: false
+    businessName: Last Update Date
+    logicalType: timestamp
+    physicalType: timestamp
+    required: false
+    description: Timestamp when the order was last updated
+    criticalDataElement: false
+    classification: public
+    tags:
+    - audit
+    - temporal
+    examples:
+    - '2024-03-15T10:30:00Z'
+    - '2024-04-20T14:45:00Z'
+  quality:
+  - metric: rowCount
+    mustBeGreaterThan: 0
+    type: library
+    description: Order table should contain records
+    dimension: completeness
+    severity: warning
+    businessImpact: operational
+  - metric: foreignKeyValidity
+    mustBe: 100
+    type: custom
+    description: All userId values must reference valid users in user-management domain
+    dimension: consistency
+    severity: error
+    businessImpact: critical
+slaProperties:
+- property: generalAvailability
+  value: '2024-01-01T00:00:00Z'
+- property: retention
+  value: 7
+  unit: years
+- property: frequency
+  value: 1
+  unit: hour
+  description: Order data is updated in near real-time
+roles:
+- role: order_data_reader
+  access: read
+  description: Read-only access to order data
+- role: order_data_writer
+  access: write
+  description: Read and write access to order data
+- role: order_data_admin
+  access: admin
+  description: Full administrative access to order data
