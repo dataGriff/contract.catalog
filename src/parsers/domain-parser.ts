@@ -202,7 +202,9 @@ export function parseAllDomains(contractsDir: string): Domain[] {
           };
 
           // Scan all contract files in the service directory
-          const files = fs.readdirSync(servicePath)
+          const files = fs.readdirSync(servicePath, { withFileTypes: true })
+            .filter(entry => entry.isFile())
+            .map(entry => entry.name)
             .filter(file => {
               const ext = path.extname(file).toLowerCase();
               return ext === '.yaml' || ext === '.yml' || ext === '.json';

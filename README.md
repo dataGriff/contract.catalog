@@ -102,9 +102,13 @@ contract.catalog/
 
 The repository includes example contracts in the `user-management` domain:
 
-- **user-api.yaml** - OpenAPI specification for a User Management API
-- **user-events.yaml** - AsyncAPI specification for user lifecycle events
-- **user-contract.yaml** - ODCS v3.1.0 data contract for user data structure
+- **user-service** - User management functionality
+  - **user-api.yaml** - OpenAPI specification for a User Management API
+  - **user-events.yaml** - AsyncAPI specification for user lifecycle events
+  - **user-contract.yaml** - ODCS v3.1.0 data contract for user data structure
+  
+- **auth-service** - Authentication functionality
+  - **auth-api.yaml** - OpenAPI specification for an Authentication API
 
 ## 🛠️ Available Scripts
 

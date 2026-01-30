@@ -75,7 +75,9 @@ export class AsyncAPIDocGenerator {
         domainEntries.forEach(serviceEntry => {
           if (serviceEntry.isDirectory()) {
             const serviceDir = path.join(domainDir, serviceEntry.name);
-            const files = fs.readdirSync(serviceDir);
+            const files = fs.readdirSync(serviceDir, { withFileTypes: true })
+              .filter(entry => entry.isFile())
+              .map(entry => entry.name);
             
             files.forEach(file => {
               if (file.endsWith('.yaml') || file.endsWith('.yml') || file.endsWith('.json')) {
