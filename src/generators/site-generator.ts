@@ -70,7 +70,13 @@ export class StaticSiteGenerator {
 
     console.log(`Found ${domains.length} domain(s)`);
     domains.forEach(domain => {
-      console.log(`  - ${domain.displayName}: ${domain.apiContracts.length} API, ${domain.eventContracts.length} Event, ${domain.dataContracts.length} Data contracts`);
+      const totalAPI = domain.services.reduce((acc, s) => acc + s.apiContracts.length, 0);
+      const totalEvent = domain.services.reduce((acc, s) => acc + s.eventContracts.length, 0);
+      const totalData = domain.services.reduce((acc, s) => acc + s.dataContracts.length, 0);
+      console.log(`  - ${domain.displayName}: ${domain.services.length} service(s), ${totalAPI} API, ${totalEvent} Event, ${totalData} Data contracts`);
+      domain.services.forEach(service => {
+        console.log(`    - ${service.displayName}: ${service.apiContracts.length} API, ${service.eventContracts.length} Event, ${service.dataContracts.length} Data contracts`);
+      });
     });
 
     // Create output directories
@@ -80,9 +86,12 @@ export class StaticSiteGenerator {
     // Copy Redoc standalone bundle for OpenAPI documentation
     this.copyRedocBundle();
     
-    // Create a directory for each domain
+    // Create a directory for each domain and service
     domains.forEach(domain => {
       this.ensureDir(path.join(this.outputDir, domain.name));
+      domain.services.forEach(service => {
+        this.ensureDir(path.join(this.outputDir, domain.name, service.name));
+      });
     });
 
     console.log('\n📝 Generating pages...');
@@ -92,43 +101,45 @@ export class StaticSiteGenerator {
     fs.writeFileSync(path.join(this.outputDir, 'index.html'), indexHtml);
     console.log('✓ Generated index.html');
 
-    // Generate contract pages for each domain
+    // Generate contract pages for each domain and service
     domains.forEach(domain => {
-      // Generate API contract pages
-      domain.apiContracts.forEach(contract => {
-        const html = generateAPIPage(contract);
-        const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
-        fs.writeFileSync(path.join(this.outputDir, domain.name, filename), html);
-        console.log(`✓ Generated ${domain.name}/${filename}`);
-      });
+      domain.services.forEach(service => {
+        // Generate API contract pages
+        service.apiContracts.forEach(contract => {
+          const html = generateAPIPage(contract);
+          const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
+          fs.writeFileSync(path.join(this.outputDir, domain.name, service.name, filename), html);
+          console.log(`✓ Generated ${domain.name}/${service.name}/${filename}`);
+        });
 
-      // Generate event contract pages
-      domain.eventContracts.forEach(contract => {
-        const html = generateEventPage(contract);
-        const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
-        fs.writeFileSync(path.join(this.outputDir, domain.name, filename), html);
-        console.log(`✓ Generated ${domain.name}/${filename}`);
-      });
+        // Generate event contract pages
+        service.eventContracts.forEach(contract => {
+          const html = generateEventPage(contract);
+          const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
+          fs.writeFileSync(path.join(this.outputDir, domain.name, service.name, filename), html);
+          console.log(`✓ Generated ${domain.name}/${service.name}/${filename}`);
+        });
 
-      // Generate data contract pages
-      domain.dataContracts.forEach(contract => {
-        const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
-        const outputPath = path.join(this.outputDir, domain.name, filename);
-        
-        // Try to use datacontract-cli export if available
-        let usedCli = false;
-        if (this.datacontractCliAvailable) {
-          const contractPath = path.join(this.contractsDir, domain.name, contract.fileName);
-          usedCli = this.generateDataContractWithCli(contractPath, outputPath);
-        }
-        
-        // Fallback to built-in template if CLI not available or failed
-        if (!usedCli) {
-          const html = generateDataPage(contract);
-          fs.writeFileSync(outputPath, html);
-        }
-        
-        console.log(`✓ Generated ${domain.name}/${filename}${usedCli ? ' (datacontract-cli)' : ''}`);
+        // Generate data contract pages
+        service.dataContracts.forEach(contract => {
+          const filename = contract.fileName.replace(/\.(yaml|yml|json)$/, '.html');
+          const outputPath = path.join(this.outputDir, domain.name, service.name, filename);
+          
+          // Try to use datacontract-cli export if available
+          let usedCli = false;
+          if (this.datacontractCliAvailable) {
+            const contractPath = path.join(this.contractsDir, domain.name, service.name, contract.fileName);
+            usedCli = this.generateDataContractWithCli(contractPath, outputPath);
+          }
+          
+          // Fallback to built-in template if CLI not available or failed
+          if (!usedCli) {
+            const html = generateDataPage(contract);
+            fs.writeFileSync(outputPath, html);
+          }
+          
+          console.log(`✓ Generated ${domain.name}/${service.name}/${filename}${usedCli ? ' (datacontract-cli)' : ''}`);
+        });
       });
     });
 

@@ -129,38 +129,46 @@ export function generateIndexPage(domains: Domain[]): string {
             <div class="section">
                 <h2>🏛️ ${escapeHtml(domain.displayName)}</h2>
                 
-                ${domain.apiContracts.length > 0 || domain.eventContracts.length > 0 || domain.dataContracts.length > 0 ? `
-                    <div class="contract-grid">
-                        ${domain.apiContracts.map(contract => `
-                        <div class="contract-card">
-                            <span class="badge">OpenAPI</span>
-                            <h3>${escapeHtml(contract.title)}</h3>
-                            <div class="version">Version: ${escapeHtml(contract.version)}</div>
-                            <div class="description">${escapeHtml(contract.description)}</div>
-                            <a href="${escapeHtml(domain.name)}/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
+                ${domain.services.length > 0 ? `
+                    ${domain.services.map(service => `
+                        <div style="margin-bottom: 2rem;">
+                            <h3 style="color: #555; margin-bottom: 1rem; font-size: 1.4rem;">⚙️ ${escapeHtml(service.displayName)}</h3>
+                            
+                            ${service.apiContracts.length > 0 || service.eventContracts.length > 0 || service.dataContracts.length > 0 ? `
+                                <div class="contract-grid">
+                                    ${service.apiContracts.map(contract => `
+                                    <div class="contract-card">
+                                        <span class="badge">OpenAPI</span>
+                                        <h3>${escapeHtml(contract.title)}</h3>
+                                        <div class="version">Version: ${escapeHtml(contract.version)}</div>
+                                        <div class="description">${escapeHtml(contract.description)}</div>
+                                        <a href="${escapeHtml(domain.name)}/${escapeHtml(service.name)}/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
+                                    </div>
+                                    `).join('')}
+                                    
+                                    ${service.eventContracts.map(contract => `
+                                    <div class="contract-card">
+                                        <span class="badge">AsyncAPI</span>
+                                        <h3>${escapeHtml(contract.title)}</h3>
+                                        <div class="version">Version: ${escapeHtml(contract.version)}</div>
+                                        <div class="description">${escapeHtml(contract.description)}</div>
+                                        <a href="${escapeHtml(domain.name)}/${escapeHtml(service.name)}/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
+                                    </div>
+                                    `).join('')}
+                                    
+                                    ${service.dataContracts.map(contract => `
+                                    <div class="contract-card">
+                                        <span class="badge">ODCS v3.1</span>
+                                        <h3>${escapeHtml(contract.title)}</h3>
+                                        <div class="description">${escapeHtml(contract.description)}</div>
+                                        <a href="${escapeHtml(domain.name)}/${escapeHtml(service.name)}/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
+                                    </div>
+                                    `).join('')}
+                                </div>
+                            ` : '<div class="empty-state">No contracts found in this service</div>'}
                         </div>
-                        `).join('')}
-                        
-                        ${domain.eventContracts.map(contract => `
-                        <div class="contract-card">
-                            <span class="badge">AsyncAPI</span>
-                            <h3>${escapeHtml(contract.title)}</h3>
-                            <div class="version">Version: ${escapeHtml(contract.version)}</div>
-                            <div class="description">${escapeHtml(contract.description)}</div>
-                            <a href="${escapeHtml(domain.name)}/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
-                        </div>
-                        `).join('')}
-                        
-                        ${domain.dataContracts.map(contract => `
-                        <div class="contract-card">
-                            <span class="badge">ODCS v3.1</span>
-                            <h3>${escapeHtml(contract.title)}</h3>
-                            <div class="description">${escapeHtml(contract.description)}</div>
-                            <a href="${escapeHtml(domain.name)}/${escapeHtml(contract.fileName.replace(/\.(yaml|yml|json)$/, '.html'))}">View Details →</a>
-                        </div>
-                        `).join('')}
-                    </div>
-                ` : '<div class="empty-state">No contracts found in this domain</div>'}
+                    `).join('')}
+                ` : '<div class="empty-state">No services found in this domain</div>'}
             </div>
         `).join('')}
         

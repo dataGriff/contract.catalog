@@ -169,7 +169,7 @@ function generateODCSPage(contract: DataContract): string {
 <body>
     <header>
         <div class="header-content">
-            <a href="../index.html" class="nav-link">← Back to Catalog</a>
+            <a href="../../index.html" class="nav-link">← Back to Catalog</a>
             <h1>📊 ${escapeHtml(contract.title)}</h1>
             <div class="metadata">
                 ${contract.version ? `<span class="metadata-item">Version: ${escapeHtml(contract.version)}</span>` : ''}
@@ -482,7 +482,7 @@ function generateJSONSchemaPage(contract: DataContract): string {
 <body>
     <header>
         <div class="header-content">
-            <a href="../index.html" class="nav-link">← Back to Catalog</a>
+            <a href="../../index.html" class="nav-link">← Back to Catalog</a>
             <h1>📊 ${escapeHtml(contract.title)}</h1>
         </div>
     </header>

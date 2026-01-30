@@ -9,6 +9,7 @@ export interface DataContract {
   fileName: string;
   version?: string;
   domain?: string;
+  service?: string;
   dataProduct?: string;
   status?: string;
   schema: any;

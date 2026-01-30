@@ -2,9 +2,11 @@ import { AsyncAPIContract } from '../parsers/asyncapi-parser.js';
 
 export function generateEventPage(contract: AsyncAPIContract): string {
   const docName = contract.fileName.replace(/\.(yaml|yml|json)$/, '');
-  const asyncapiDocLink = contract.domain 
-    ? `../asyncapi-docs/${contract.domain}/${docName}/index.html`
-    : `../asyncapi-docs/${docName}/index.html`;
+  const asyncapiDocLink = (contract.domain && contract.service)
+    ? `../../asyncapi-docs/${contract.domain}/${contract.service}/${docName}/index.html`
+    : contract.domain 
+      ? `../asyncapi-docs/${contract.domain}/${docName}/index.html`
+      : `../asyncapi-docs/${docName}/index.html`;
     
   return `<!DOCTYPE html>
 <html lang="en">
@@ -126,7 +128,7 @@ export function generateEventPage(contract: AsyncAPIContract): string {
 <body>
     <header>
         <div class="header-content">
-            <a href="../index.html" class="nav-link">← Back to Catalog</a>
+            <a href="../../index.html" class="nav-link">← Back to Catalog</a>
             <h1>📡 ${escapeHtml(contract.title)}</h1>
             <div class="version">Version: ${escapeHtml(contract.version)}</div>
         </div>
