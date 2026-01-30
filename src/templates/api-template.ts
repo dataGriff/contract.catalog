@@ -101,7 +101,7 @@ export function generateAPIPage(contract: OpenAPIContract): string {
     
     <div class="redoc-container"></div>
     
-    <script src="../assets/redoc.standalone.js" onerror="handleScriptError()"></script>
+    <script src="../../assets/redoc.standalone.js" onerror="handleScriptError()"></script>
     <script>
         function handleScriptError() {
             const container = document.querySelector('.redoc-container');
