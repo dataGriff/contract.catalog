@@ -32,7 +32,7 @@ channels:
     description: Channel for order completion events
     publish:
       summary: Order completed event
-      description: Published when an order is successfully delivered. Payment service and notification service consume this event.
+      description: Published when an order is successfully delivered. Payment Service and Notification Service consume this event.
       operationId: onOrderCompleted
       message:
         $ref: '#/components/messages/OrderCompleted'
@@ -40,7 +40,7 @@ channels:
     description: Channel for order cancellation events
     publish:
       summary: Order cancelled event
-      description: Published when an order is cancelled. Triggers refund processing in Payment service.
+      description: Published when an order is cancelled. Triggers refund processing in Payment Service.
       operationId: onOrderCancelled
       message:
         $ref: '#/components/messages/OrderCancelled'

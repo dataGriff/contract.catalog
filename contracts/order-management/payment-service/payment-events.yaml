@@ -23,7 +23,7 @@ channels:
       description: |
         Published when a payment is successfully processed.
         Contains cross-domain references to both user (user-management) and order (order-management).
-        Consumed by order service to update order status.
+        Consumed by Order Service to update order status.
       operationId: onPaymentProcessed
       message:
         $ref: '#/components/messages/PaymentProcessed'
@@ -33,7 +33,7 @@ channels:
       summary: Payment failed event
       description: |
         Published when a payment fails.
-        Consumed by order service to handle failed payments and by notification service to alert user.
+        Consumed by Order Service to handle failed payments and by Notification Service to alert user.
       operationId: onPaymentFailed
       message:
         $ref: '#/components/messages/PaymentFailed'
@@ -43,7 +43,7 @@ channels:
       summary: Payment refunded event
       description: |
         Published when a payment is refunded.
-        Consumed by order service to update order status and by accounting service for reconciliation.
+        Consumed by Order Service to update order status and by Accounting Service for reconciliation.
       operationId: onPaymentRefunded
       message:
         $ref: '#/components/messages/PaymentRefunded'

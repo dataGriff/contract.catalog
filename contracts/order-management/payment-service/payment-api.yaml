@@ -70,9 +70,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Payment'
         '400':
-          description: Invalid request (e.g., invalid orderId or userId)
-        '402':
-          description: Payment failed
+          description: Invalid request (e.g., invalid orderId or userId) or payment processing failed
   /payments/{paymentId}:
     get:
       summary: Get payment by ID
@@ -227,8 +225,17 @@ components:
           description: Payment method (e.g., credit_card, debit_card, paypal)
         paymentDetails:
           type: object
-          description: Payment method specific details (encrypted)
-          additionalProperties: true
+          description: Payment method specific details (must be encrypted before transmission)
+          properties:
+            encryptedData:
+              type: string
+              description: Encrypted payment information
+            keyId:
+              type: string
+              description: Identifier of the encryption key used
+          required:
+            - encryptedData
+            - keyId
       required:
         - orderId
         - userId

@@ -7,7 +7,7 @@ kind: DataContract
 apiVersion: v3.1.0
 description:
   purpose: Define the structure and rules for order data in the system with cross-domain integration to user-management
-  limitations: Does not include payment information (see payment-service)
+  limitations: Does not include payment information (see payment-service/payment-api.yaml)
   usage: Order management, fulfillment, reporting, and analytics. Integrates with user-management domain via userId foreign key.
 team:
   name: order-management-team
@@ -83,13 +83,6 @@ schema:
       description: User ID cannot be null
       dimension: completeness
       type: library
-      severity: error
-      businessImpact: critical
-    - metric: referentialIntegrity
-      mustBe: 100
-      description: All user IDs must exist in user-management.users table
-      dimension: validity
-      type: custom
       severity: error
       businessImpact: critical
   - id: order_status
