@@ -90,7 +90,7 @@ export function generateAPIPage(contract: OpenAPIContract): string {
     <header>
         <div class="header-content">
             <div class="header-left">
-                <a href="../index.html" class="nav-link">← Back to Catalog</a>
+                <a href="../../index.html" class="nav-link">← Back to Catalog</a>
                 <div>
                     <h1>🔌 ${escapeHtml(contract.title)}</h1>
                     <div class="version">Version: ${escapeHtml(contract.version)}</div>
@@ -101,7 +101,7 @@ export function generateAPIPage(contract: OpenAPIContract): string {
     
     <div class="redoc-container"></div>
     
-    <script src="../assets/redoc.standalone.js" onerror="handleScriptError()"></script>
+    <script src="../../assets/redoc.standalone.js" onerror="handleScriptError()"></script>
     <script>
         function handleScriptError() {
             const container = document.querySelector('.redoc-container');

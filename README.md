@@ -20,30 +20,40 @@ npm install
 
 ### Add Your Contracts
 
-Organize your contract files by domain. Each subdirectory under `contracts/` represents a domain and can contain multiple contract types:
+Organize your contract files by domain and service. Each subdirectory under `contracts/` represents a domain, and within each domain, you can have multiple services. Each service directory contains the contract files for that service:
 
 ```
 contracts/
-└── user-management/          # Domain directory
-    ├── user-api.yaml         # OpenAPI contract
-    ├── user-events.yaml      # AsyncAPI contract
-    └── user-contract.yaml    # ODCS data contract
+└── user-management/              # Domain directory
+    └── user-service/             # Service directory
+        ├── user-api.yaml         # OpenAPI contract
+        ├── user-events.yaml      # AsyncAPI contract
+        └── user-contract.yaml    # ODCS data contract
 ```
 
-You can have multiple domains:
+You can have multiple domains with multiple services:
 
 ```
 contracts/
-├── user-management/
-│   ├── user-api.yaml
-│   ├── user-events.yaml
-│   └── user-contract.yaml
-├── payment-processing/
-│   ├── payment-api.yaml
-│   └── payment-events.yaml
-└── inventory/
-    ├── inventory-api.yaml
-    └── inventory-data.yaml
+├── user-management/              # Domain
+│   ├── user-service/            # Service
+│   │   ├── user-api.yaml
+│   │   ├── user-events.yaml
+│   │   └── user-contract.yaml
+│   └── auth-service/            # Another service in the same domain
+│       ├── auth-api.yaml
+│       └── auth-events.yaml
+├── payment-processing/           # Another domain
+│   ├── payment-service/
+│   │   ├── payment-api.yaml
+│   │   └── payment-events.yaml
+│   └── billing-service/
+│       ├── billing-api.yaml
+│       └── billing-data.yaml
+└── inventory/                    # Another domain
+    └── inventory-service/
+        ├── inventory-api.yaml
+        └── inventory-data.yaml
 ```
 
 ### Generate the Catalog
@@ -73,13 +83,14 @@ Then open http://localhost:8080 in your browser.
 
 ```
 contract.catalog/
-├── contracts/              # Your contract files organized by domain
+├── contracts/              # Your contract files organized by domain and service
 │   └── user-management/   # Example domain
-│       ├── user-api.yaml       # OpenAPI specification
-│       ├── user-events.yaml    # AsyncAPI specification
-│       └── user-contract.yaml  # ODCS data contract
+│       └── user-service/  # Example service
+│           ├── user-api.yaml       # OpenAPI specification
+│           ├── user-events.yaml    # AsyncAPI specification
+│           └── user-contract.yaml  # ODCS data contract
 ├── src/                   # Source code
-│   ├── parsers/          # Contract parsers (including domain parser)
+│   ├── parsers/          # Contract parsers (including domain and service parser)
 │   ├── generators/       # Site generator
 │   ├── templates/        # HTML templates
 │   └── index.ts          # Entry point
@@ -91,9 +102,13 @@ contract.catalog/
 
 The repository includes example contracts in the `user-management` domain:
 
-- **user-api.yaml** - OpenAPI specification for a User Management API
-- **user-events.yaml** - AsyncAPI specification for user lifecycle events
-- **user-contract.yaml** - ODCS v3.1.0 data contract for user data structure
+- **user-service** - User management functionality
+  - **user-api.yaml** - OpenAPI specification for a User Management API
+  - **user-events.yaml** - AsyncAPI specification for user lifecycle events
+  - **user-contract.yaml** - ODCS v3.1.0 data contract for user data structure
+  
+- **auth-service** - Authentication functionality
+  - **auth-api.yaml** - OpenAPI specification for an Authentication API
 
 ## 🛠️ Available Scripts
 

@@ -11,6 +11,7 @@ export interface OpenAPIContract {
   paths: Record<string, any>;
   servers?: Array<{ url: string; description?: string }>;
   domain?: string;
+  service?: string;
   fullSpec?: any; // Full OpenAPI specification for complete rendering
 }
 

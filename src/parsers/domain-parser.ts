@@ -5,12 +5,18 @@ import { OpenAPIContract } from './openapi-parser.js';
 import { AsyncAPIContract } from './asyncapi-parser.js';
 import { DataContract } from './data-parser.js';
 
-export interface Domain {
+export interface Service {
   name: string;
   displayName: string;
   apiContracts: OpenAPIContract[];
   eventContracts: AsyncAPIContract[];
   dataContracts: DataContract[];
+}
+
+export interface Domain {
+  name: string;
+  displayName: string;
+  services: Service[];
 }
 
 function detectContractType(filePath: string): 'openapi' | 'asyncapi' | 'data' | 'unknown' {
@@ -60,7 +66,7 @@ function detectContractType(filePath: string): 'openapi' | 'asyncapi' | 'data' |
   return 'unknown';
 }
 
-function parseOpenAPIContract(filePath: string, domain: string): OpenAPIContract {
+function parseOpenAPIContract(filePath: string, domain: string, service?: string): OpenAPIContract {
   const content = fs.readFileSync(filePath, 'utf-8');
   const spec = yaml.load(content) as any;
 
@@ -73,11 +79,12 @@ function parseOpenAPIContract(filePath: string, domain: string): OpenAPIContract
     paths: spec.paths || {},
     servers: spec.servers || [],
     domain,
+    service,
     fullSpec: spec
   };
 }
 
-function parseAsyncAPIContract(filePath: string, domain: string): AsyncAPIContract {
+function parseAsyncAPIContract(filePath: string, domain: string, service?: string): AsyncAPIContract {
   const content = fs.readFileSync(filePath, 'utf-8');
   const spec = yaml.load(content) as any;
 
@@ -89,11 +96,12 @@ function parseAsyncAPIContract(filePath: string, domain: string): AsyncAPIContra
     fileName: path.basename(filePath),
     channels: spec.channels || {},
     servers: spec.servers || {},
-    domain
+    domain,
+    service
   };
 }
 
-function parseDataContract(filePath: string, domain: string): DataContract {
+function parseDataContract(filePath: string, domain: string, service?: string): DataContract {
   const content = fs.readFileSync(filePath, 'utf-8');
   const ext = path.extname(filePath).toLowerCase();
   
@@ -112,6 +120,7 @@ function parseDataContract(filePath: string, domain: string): DataContract {
         fileName: path.basename(filePath),
         version: contract.version,
         domain: contract.domain || domain,
+        service,
         dataProduct: contract.dataProduct,
         status: contract.status,
         schema: contract.schema || [],
@@ -133,7 +142,8 @@ function parseDataContract(filePath: string, domain: string): DataContract {
       fileName: path.basename(filePath),
       schema: contract,
       isODCS: false,
-      domain
+      domain,
+      service
     };
   }
   
@@ -145,7 +155,8 @@ function parseDataContract(filePath: string, domain: string): DataContract {
     fileName: path.basename(filePath),
     schema: contract,
     isODCS: false,
-    domain
+    domain,
+    service
   };
 }
 
@@ -168,43 +179,69 @@ export function parseAllDomains(contractsDir: string): Domain[] {
         displayName: domainName.split('-').map(word => 
           word.charAt(0).toUpperCase() + word.slice(1)
         ).join(' '),
-        apiContracts: [],
-        eventContracts: [],
-        dataContracts: []
+        services: []
       };
 
-      // Scan all files in the domain directory
-      const files = fs.readdirSync(domainPath)
-        .filter(file => {
-          const ext = path.extname(file).toLowerCase();
-          return ext === '.yaml' || ext === '.yml' || ext === '.json';
-        });
+      // Scan for services (subdirectories) within the domain
+      const domainEntries = fs.readdirSync(domainPath, { withFileTypes: true });
+      
+      for (const serviceEntry of domainEntries) {
+        if (serviceEntry.isDirectory()) {
+          // This is a service directory
+          const serviceName = serviceEntry.name;
+          const servicePath = path.join(domainPath, serviceName);
+          
+          const service: Service = {
+            name: serviceName,
+            displayName: serviceName.split('-').map(word => 
+              word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' '),
+            apiContracts: [],
+            eventContracts: [],
+            dataContracts: []
+          };
 
-      for (const file of files) {
-        const filePath = path.join(domainPath, file);
-        const contractType = detectContractType(filePath);
+          // Scan all contract files in the service directory
+          const files = fs.readdirSync(servicePath, { withFileTypes: true })
+            .filter(entry => entry.isFile())
+            .map(entry => entry.name)
+            .filter(file => {
+              const ext = path.extname(file).toLowerCase();
+              return ext === '.yaml' || ext === '.yml' || ext === '.json';
+            });
 
-        try {
-          switch (contractType) {
-            case 'openapi':
-              domain.apiContracts.push(parseOpenAPIContract(filePath, domainName));
-              break;
-            case 'asyncapi':
-              domain.eventContracts.push(parseAsyncAPIContract(filePath, domainName));
-              break;
-            case 'data':
-              domain.dataContracts.push(parseDataContract(filePath, domainName));
-              break;
+          for (const file of files) {
+            const filePath = path.join(servicePath, file);
+            const contractType = detectContractType(filePath);
+
+            try {
+              switch (contractType) {
+                case 'openapi':
+                  service.apiContracts.push(parseOpenAPIContract(filePath, domainName, serviceName));
+                  break;
+                case 'asyncapi':
+                  service.eventContracts.push(parseAsyncAPIContract(filePath, domainName, serviceName));
+                  break;
+                case 'data':
+                  service.dataContracts.push(parseDataContract(filePath, domainName, serviceName));
+                  break;
+              }
+            } catch (error) {
+              console.warn(`Warning: Failed to parse ${filePath}:`, error);
+            }
           }
-        } catch (error) {
-          console.warn(`Warning: Failed to parse ${filePath}:`, error);
+
+          // Only add service if it has at least one contract
+          if (service.apiContracts.length > 0 || 
+              service.eventContracts.length > 0 || 
+              service.dataContracts.length > 0) {
+            domain.services.push(service);
+          }
         }
       }
 
-      // Only add domain if it has at least one contract
-      if (domain.apiContracts.length > 0 || 
-          domain.eventContracts.length > 0 || 
-          domain.dataContracts.length > 0) {
+      // Only add domain if it has at least one service
+      if (domain.services.length > 0) {
         domains.push(domain);
       }
     }

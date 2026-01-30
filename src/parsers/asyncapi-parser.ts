@@ -11,6 +11,7 @@ export interface AsyncAPIContract {
   channels: Record<string, any>;
   servers?: Record<string, any>;
   domain?: string;
+  service?: string;
 }
 
 export function parseAsyncAPIContract(filePath: string): AsyncAPIContract {
