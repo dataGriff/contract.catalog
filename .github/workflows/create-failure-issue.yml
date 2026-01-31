@@ -1,0 +1,52 @@
+name: Create Issue on Workflow Failure
+
+on:
+  workflow_call:
+    inputs:
+      workflow_name:
+        description: 'Name of the workflow that failed'
+        required: true
+        type: string
+      run_url:
+        description: 'URL of the failed workflow run'
+        required: true
+        type: string
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create or Update Issue
+        uses: dacbd/create-issue-action@v2
+        with:
+          token: ${{ github.token }}
+          title: '🚨 Workflow Failure: ${{ inputs.workflow_name }}'
+          body: |
+            ## Workflow Failure Detected
+
+            **Workflow:** ${{ inputs.workflow_name }}
+            **Run URL:** ${{ inputs.run_url }}
+            **Branch:** ${{ github.ref_name }}
+            **Commit:** ${{ github.sha }}
+            **Triggered by:** @${{ github.actor }}
+
+            ### Details
+
+            The workflow `${{ inputs.workflow_name }}` has failed. Please investigate the issue by checking the workflow run logs.
+
+            ### Actions Required
+
+            - [ ] Review the workflow logs
+            - [ ] Identify the root cause
+            - [ ] Fix the issue
+            - [ ] Close this issue once resolved
+
+            ---
+
+            *This issue was automatically created by the workflow failure detection system.*
+          labels: 'bug,ci-failure'
+          assignees: ${{ github.actor }}

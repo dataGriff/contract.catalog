@@ -11,6 +11,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  issues: write
 
 # Allow only one concurrent deployment
 concurrency:
@@ -63,3 +64,42 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  notify-failure:
+    runs-on: ubuntu-latest
+    needs: [build, deploy]
+    if: failure()
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Create Issue on Failure
+        uses: dacbd/create-issue-action@v2
+        with:
+          token: ${{ github.token }}
+          title: '🚨 Workflow Failure: Publish Site'
+          body: |
+            ## Workflow Failure Detected
+
+            **Workflow:** Publish Site
+            **Run URL:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            **Branch:** ${{ github.ref_name }}
+            **Commit:** ${{ github.sha }}
+            **Triggered by:** @${{ github.actor }}
+
+            ### Details
+
+            The Publish Site workflow has failed. Please investigate the issue by checking the workflow run logs.
+
+            ### Actions Required
+
+            - [ ] Review the workflow logs
+            - [ ] Identify the root cause
+            - [ ] Fix the issue
+            - [ ] Close this issue once resolved
+
+            ---
+
+            *This issue was automatically created by the workflow failure detection system.*
+          labels: 'bug,ci-failure'
+          assignees: ${{ github.actor }}
