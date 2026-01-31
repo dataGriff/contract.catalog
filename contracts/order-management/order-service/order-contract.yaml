@@ -118,7 +118,6 @@ schema:
     businessName: Total Order Amount
     logicalType: number
     physicalType: decimal(10,2)
-    minimum: 0
     exclusiveMinimum: 0
     required: true
     description: Total amount for the order
