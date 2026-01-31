@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   lint:
@@ -29,3 +30,45 @@ jobs:
 
       - name: Lint contracts with Spectral
         run: npm run lint:contracts
+
+  notify-failure:
+    runs-on: ubuntu-latest
+    needs: lint
+    if: failure() && github.event_name != 'pull_request'
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Create Issue on Failure
+        uses: dacbd/create-issue-action@v2
+        with:
+          token: ${{ github.token }}
+          title: '🚨 Workflow Failure: Lint Contracts'
+          body: |
+            ## Workflow Failure Detected
+
+            **Workflow:** Lint Contracts
+            **Run URL:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            **Branch:** ${{ github.ref_name }}
+            **Commit:** ${{ github.sha }}
+            **Triggered by:** @${{ github.actor }}
+
+            ### Details
+
+            The Lint Contracts workflow has failed. This typically indicates issues with contract validation:
+            - OpenAPI or AsyncAPI specification errors
+            - Missing required fields
+            - Invalid schema definitions
+
+            ### Actions Required
+
+            - [ ] Review the workflow logs
+            - [ ] Identify which contract(s) failed validation
+            - [ ] Fix the contract issues
+            - [ ] Close this issue once resolved
+
+            ---
+
+            *This issue was automatically created by the workflow failure detection system.*
+          labels: 'bug,ci-failure,linting'
+          assignees: ${{ github.actor }}
