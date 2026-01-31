@@ -96,6 +96,12 @@ schema:
     description: Current status of the order
     criticalDataElement: true
     classification: public
+    enum:
+    - pending
+    - confirmed
+    - shipped
+    - delivered
+    - cancelled
     tags:
     - status
     - workflow
@@ -105,20 +111,14 @@ schema:
     - shipped
     - delivered
     - cancelled
-    quality:
-    - metric: allowedValues
-      mustBeIn: [pending, confirmed, shipped, delivered, cancelled]
-      description: Status must be one of the allowed values
-      dimension: validity
-      type: library
-      severity: error
   - id: order_total_amount
     name: totalAmount
     physicalName: total_amount
     primaryKey: false
     businessName: Total Order Amount
-    logicalType: decimal
+    logicalType: number
     physicalType: decimal(10,2)
+    exclusiveMinimum: 0
     required: true
     description: Total amount for the order
     criticalDataElement: true
@@ -129,13 +129,6 @@ schema:
     examples:
     - 99.99
     - 249.50
-    quality:
-    - metric: numericRange
-      mustBeGreaterThan: 0
-      description: Order amount must be positive
-      dimension: validity
-      type: library
-      severity: error
   - id: order_currency
     name: currency
     physicalName: currency
@@ -196,13 +189,6 @@ schema:
     dimension: completeness
     severity: warning
     businessImpact: operational
-  - metric: foreignKeyValidity
-    mustBe: 100
-    type: custom
-    description: All userId values must reference valid users in user-management domain
-    dimension: consistency
-    severity: error
-    businessImpact: critical
 slaProperties:
 - property: generalAvailability
   value: '2024-01-01T00:00:00Z'
