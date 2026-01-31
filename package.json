@@ -28,11 +28,12 @@
     "@asyncapi/html-template": "^3.5.2",
     "@stoplight/spectral-cli": "^6.15.0",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.10.0",
+    "@types/node": "^20.19.30",
     "redoc": "^2.5.2",
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "mermaid": "^11.12.2"
   }
 }

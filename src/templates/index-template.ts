@@ -124,10 +124,17 @@ export function generateIndexPage(domains: Domain[]): string {
         <p>Architecture documentation from API, Event, and Data Contracts</p>
     </header>
     
+    <nav style="background: white; padding: 1rem 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+        <a href="architecture.html" style="color: #667eea; text-decoration: none; font-weight: 600; padding: 0.5rem 1rem; border: 2px solid #667eea; border-radius: 4px; display: inline-block;">📐 View Architecture Overview</a>
+    </nav>
+    
     <div class="container">
         ${domains.map(domain => `
             <div class="section">
                 <h2>🏛️ ${escapeHtml(domain.displayName)}</h2>
+                <p style="margin-bottom: 1rem;">
+                    <a href="${escapeHtml(domain.name)}/architecture.html" style="color: #667eea; text-decoration: none; font-weight: 600;">📐 View ${escapeHtml(domain.displayName)} Architecture →</a>
+                </p>
                 
                 ${domain.services.length > 0 ? `
                     ${domain.services.map(service => `

@@ -6,6 +6,7 @@ import { generateIndexPage } from '../templates/index-template.js';
 import { generateAPIPage } from '../templates/api-template.js';
 import { generateEventPage } from '../templates/event-template.js';
 import { generateDataPage } from '../templates/data-template.js';
+import { generateArchitecturePage, generateDomainArchitecturePage } from '../templates/architecture-template.js';
 
 export class StaticSiteGenerator {
   private contractsDir: string;
@@ -86,6 +87,9 @@ export class StaticSiteGenerator {
     // Copy Redoc standalone bundle for OpenAPI documentation
     this.copyRedocBundle();
     
+    // Copy Mermaid bundle for architecture diagrams
+    this.copyMermaidBundle();
+    
     // Create a directory for each domain and service
     domains.forEach(domain => {
       this.ensureDir(path.join(this.outputDir, domain.name));
@@ -101,8 +105,18 @@ export class StaticSiteGenerator {
     fs.writeFileSync(path.join(this.outputDir, 'index.html'), indexHtml);
     console.log('✓ Generated index.html');
 
+    // Generate architecture overview page
+    const architectureHtml = generateArchitecturePage(domains);
+    fs.writeFileSync(path.join(this.outputDir, 'architecture.html'), architectureHtml);
+    console.log('✓ Generated architecture.html');
+
     // Generate contract pages for each domain and service
     domains.forEach(domain => {
+      // Generate domain architecture page
+      const domainArchHtml = generateDomainArchitecturePage(domain);
+      fs.writeFileSync(path.join(this.outputDir, domain.name, 'architecture.html'), domainArchHtml);
+      console.log(`✓ Generated ${domain.name}/architecture.html`);
+
       domain.services.forEach(service => {
         // Generate API contract pages
         service.apiContracts.forEach(contract => {
@@ -166,6 +180,19 @@ export class StaticSiteGenerator {
     } else {
       console.warn('⚠ Redoc bundle not found. OpenAPI documentation may not render correctly.');
       console.warn('  Run: npm install redoc');
+    }
+  }
+
+  private copyMermaidBundle(): void {
+    const mermaidSource = path.join(process.cwd(), 'node_modules', 'mermaid', 'dist', 'mermaid.min.js');
+    const mermaidDest = path.join(this.outputDir, 'assets', 'mermaid.min.js');
+    
+    if (fs.existsSync(mermaidSource)) {
+      fs.copyFileSync(mermaidSource, mermaidDest);
+      console.log('✓ Copied Mermaid bundle to assets/');
+    } else {
+      console.warn('⚠ Mermaid bundle not found. Architecture diagrams may not render correctly.');
+      console.warn('  Run: npm install mermaid');
     }
   }
 }
