@@ -33,6 +33,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "mermaid": "^11.12.2"
   }
 }

@@ -7,8 +7,8 @@ export function generateArchitecturePage(domains: Domain[]): string {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Architecture Overview - Contract Catalog</title>
-    <script type="module">
-        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    <script src="assets/mermaid.min.js"></script>
+    <script>
         mermaid.initialize({ 
             startOnLoad: true,
             theme: 'default',
@@ -234,8 +234,8 @@ export function generateDomainArchitecturePage(domain: Domain): string {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(domain.displayName)} Architecture - Contract Catalog</title>
-    <script type="module">
-        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    <script src="../assets/mermaid.min.js"></script>
+    <script>
         mermaid.initialize({ 
             startOnLoad: true,
             theme: 'default',
