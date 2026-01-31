@@ -1,0 +1,302 @@
+openapi: 3.0.0
+info:
+  title: Payment Processing API
+  version: 1.0.0
+  description: |
+    API for processing payments and managing transactions. This service integrates with both:
+    - Order Management API (order-management domain) for order details
+    - User Management API (user-management domain) for customer information
+    This demonstrates cross-domain integration patterns.
+  contact:
+    name: Payment Team
+    email: payments@example.com
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+paths:
+  /payments:
+    get:
+      summary: List all payments
+      description: Retrieve a list of all payments in the system
+      operationId: listPayments
+      tags:
+        - Payments
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter payments by user ID (from User Management domain)
+        - name: orderId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter payments by order ID (from Order Management domain)
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, processing, completed, failed, refunded]
+          description: Filter payments by status
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+    post:
+      summary: Process a new payment
+      description: Process a payment for an order. Requires valid orderId from Order Management API and userId from User Management API.
+      operationId: processPayment
+      tags:
+        - Payments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessPaymentRequest'
+      responses:
+        '201':
+          description: Payment processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          description: Invalid request (e.g., invalid orderId or userId) or payment processing failed
+  /payments/{paymentId}:
+    get:
+      summary: Get payment by ID
+      description: Retrieve a specific payment by its ID
+      operationId: getPayment
+      tags:
+        - Payments
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The payment ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '404':
+          description: Payment not found
+  /payments/{paymentId}/refund:
+    post:
+      summary: Refund a payment
+      description: Process a refund for a completed payment
+      operationId: refundPayment
+      tags:
+        - Payments
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The payment ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
+      responses:
+        '200':
+          description: Refund processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '404':
+          description: Payment not found
+        '400':
+          description: Payment cannot be refunded
+  /transactions:
+    get:
+      summary: Get transaction history
+      description: Retrieve transaction history for payments
+      operationId: getTransactionHistory
+      tags:
+        - Transactions
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by user ID (cross-domain reference to User Management)
+        - name: orderId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by order ID (cross-domain reference to Order Management)
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+components:
+  schemas:
+    Payment:
+      type: object
+      description: Payment entity with cross-domain references to both Order Management and User Management
+      properties:
+        id:
+          type: string
+          description: Unique payment identifier
+        orderId:
+          type: string
+          description: Order ID from Order Management API (cross-domain reference)
+        userId:
+          type: string
+          description: User ID from User Management API (cross-domain reference)
+        amount:
+          type: number
+          format: decimal
+          description: Payment amount
+        currency:
+          type: string
+          description: Currency code (e.g., USD, EUR)
+        status:
+          type: string
+          enum: [pending, processing, completed, failed, refunded]
+          description: Current payment status
+        paymentMethod:
+          type: string
+          description: Payment method used (e.g., credit_card, debit_card, paypal)
+        transactionId:
+          type: string
+          description: External transaction ID from payment processor
+        createdAt:
+          type: string
+          format: date-time
+          description: Payment creation timestamp
+        completedAt:
+          type: string
+          format: date-time
+          description: Payment completion timestamp
+      required:
+        - id
+        - orderId
+        - userId
+        - amount
+        - currency
+        - status
+        - paymentMethod
+        - createdAt
+    ProcessPaymentRequest:
+      type: object
+      description: Request to process a payment
+      properties:
+        orderId:
+          type: string
+          description: Order ID from Order Management API (must be a valid order)
+        userId:
+          type: string
+          description: User ID from User Management API (must be a valid user)
+        amount:
+          type: number
+          format: decimal
+          description: Payment amount
+        currency:
+          type: string
+          description: Currency code (e.g., USD, EUR)
+        paymentMethod:
+          type: string
+          description: Payment method (e.g., credit_card, debit_card, paypal)
+        paymentDetails:
+          type: object
+          description: Payment method specific details (must be encrypted before transmission)
+          properties:
+            encryptedData:
+              type: string
+              description: Encrypted payment information
+            keyId:
+              type: string
+              description: Identifier of the encryption key used
+          required:
+            - encryptedData
+            - keyId
+      required:
+        - orderId
+        - userId
+        - amount
+        - currency
+        - paymentMethod
+        - paymentDetails
+    RefundRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: decimal
+          description: Refund amount (if partial refund)
+        reason:
+          type: string
+          description: Reason for refund
+      required:
+        - reason
+    Transaction:
+      type: object
+      description: Transaction record for audit purposes
+      properties:
+        id:
+          type: string
+          description: Unique transaction identifier
+        paymentId:
+          type: string
+          description: Associated payment ID
+        orderId:
+          type: string
+          description: Associated order ID (cross-domain reference)
+        userId:
+          type: string
+          description: Associated user ID (cross-domain reference)
+        type:
+          type: string
+          enum: [charge, refund, reversal]
+          description: Transaction type
+        amount:
+          type: number
+          format: decimal
+          description: Transaction amount
+        currency:
+          type: string
+          description: Currency code
+        status:
+          type: string
+          enum: [pending, completed, failed]
+          description: Transaction status
+        timestamp:
+          type: string
+          format: date-time
+          description: Transaction timestamp
+      required:
+        - id
+        - paymentId
+        - orderId
+        - userId
+        - type
+        - amount
+        - currency
+        - status
+        - timestamp

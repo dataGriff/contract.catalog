@@ -1,0 +1,178 @@
+asyncapi: 2.6.0
+info:
+  title: Payment Events
+  version: 1.0.0
+  description: |
+    Events published when payment operations occur. These events demonstrate cross-domain integration:
+    - References users from User Management domain
+    - References orders from Order Management domain
+    - Can be consumed by both domains and notification services
+  contact:
+    name: Events Team
+    email: events@example.com
+servers:
+  production:
+    url: kafka.example.com:9092
+    protocol: kafka
+    description: Production Kafka cluster
+channels:
+  payment.processed:
+    description: Channel for payment processing events
+    publish:
+      summary: Payment processed event
+      description: |
+        Published when a payment is successfully processed.
+        Contains cross-domain references to both user (user-management) and order (order-management).
+        Consumed by Order Service to update order status.
+      operationId: onPaymentProcessed
+      message:
+        $ref: '#/components/messages/PaymentProcessed'
+  payment.failed:
+    description: Channel for payment failure events
+    publish:
+      summary: Payment failed event
+      description: |
+        Published when a payment fails.
+        Consumed by Order Service to handle failed payments and by Notification Service to alert user.
+      operationId: onPaymentFailed
+      message:
+        $ref: '#/components/messages/PaymentFailed'
+  payment.refunded:
+    description: Channel for payment refund events
+    publish:
+      summary: Payment refunded event
+      description: |
+        Published when a payment is refunded.
+        Consumed by Order Service to update order status and by Accounting Service for reconciliation.
+      operationId: onPaymentRefunded
+      message:
+        $ref: '#/components/messages/PaymentRefunded'
+components:
+  messages:
+    PaymentProcessed:
+      name: PaymentProcessed
+      title: Payment Processed Event
+      summary: Event emitted when a payment is successfully processed
+      contentType: application/json
+      payload:
+        type: object
+        description: Payment processed event with cross-domain references
+        properties:
+          paymentId:
+            type: string
+            description: Unique payment identifier
+          orderId:
+            type: string
+            description: Order ID from Order Management domain (enables order status update)
+          userId:
+            type: string
+            description: User ID from User Management domain (for customer notifications)
+          amount:
+            type: number
+            description: Payment amount
+          currency:
+            type: string
+            description: Currency code
+          paymentMethod:
+            type: string
+            description: Payment method used
+          transactionId:
+            type: string
+            description: External transaction ID
+          processedAt:
+            type: string
+            format: date-time
+            description: Processing timestamp
+        required:
+          - paymentId
+          - orderId
+          - userId
+          - amount
+          - currency
+          - processedAt
+    PaymentFailed:
+      name: PaymentFailed
+      title: Payment Failed Event
+      summary: Event emitted when a payment fails
+      contentType: application/json
+      payload:
+        type: object
+        description: Payment failure event with cross-domain references
+        properties:
+          paymentId:
+            type: string
+            description: Unique payment identifier
+          orderId:
+            type: string
+            description: Order ID from Order Management domain (cross-domain reference)
+          userId:
+            type: string
+            description: User ID from User Management domain (cross-domain reference)
+          amount:
+            type: number
+            description: Payment amount
+          currency:
+            type: string
+            description: Currency code
+          failureReason:
+            type: string
+            description: Reason for payment failure
+          failureCode:
+            type: string
+            description: Error code from payment processor
+          failedAt:
+            type: string
+            format: date-time
+            description: Failure timestamp
+        required:
+          - paymentId
+          - orderId
+          - userId
+          - amount
+          - currency
+          - failureReason
+          - failedAt
+    PaymentRefunded:
+      name: PaymentRefunded
+      title: Payment Refunded Event
+      summary: Event emitted when a payment is refunded
+      contentType: application/json
+      payload:
+        type: object
+        description: Payment refund event with cross-domain references
+        properties:
+          paymentId:
+            type: string
+            description: Unique payment identifier
+          orderId:
+            type: string
+            description: Order ID from Order Management domain (cross-domain reference)
+          userId:
+            type: string
+            description: User ID from User Management domain (cross-domain reference)
+          refundAmount:
+            type: number
+            description: Refund amount
+          currency:
+            type: string
+            description: Currency code
+          refundReason:
+            type: string
+            description: Reason for refund
+          refundType:
+            type: string
+            enum: [full, partial]
+            description: Type of refund
+          refundedAt:
+            type: string
+            format: date-time
+            description: Refund timestamp
+        required:
+          - paymentId
+          - orderId
+          - userId
+          - refundAmount
+          - currency
+          - refundReason
+          - refundType
+          - refundedAt
