@@ -6,6 +6,7 @@ import { generateIndexPage } from '../templates/index-template.js';
 import { generateAPIPage } from '../templates/api-template.js';
 import { generateEventPage } from '../templates/event-template.js';
 import { generateDataPage } from '../templates/data-template.js';
+import { generateArchitecturePage, generateDomainArchitecturePage } from '../templates/architecture-template.js';
 
 export class StaticSiteGenerator {
   private contractsDir: string;
@@ -101,8 +102,18 @@ export class StaticSiteGenerator {
     fs.writeFileSync(path.join(this.outputDir, 'index.html'), indexHtml);
     console.log('✓ Generated index.html');
 
+    // Generate architecture overview page
+    const architectureHtml = generateArchitecturePage(domains);
+    fs.writeFileSync(path.join(this.outputDir, 'architecture.html'), architectureHtml);
+    console.log('✓ Generated architecture.html');
+
     // Generate contract pages for each domain and service
     domains.forEach(domain => {
+      // Generate domain architecture page
+      const domainArchHtml = generateDomainArchitecturePage(domain);
+      fs.writeFileSync(path.join(this.outputDir, domain.name, 'architecture.html'), domainArchHtml);
+      console.log(`✓ Generated ${domain.name}/architecture.html`);
+
       domain.services.forEach(service => {
         // Generate API contract pages
         service.apiContracts.forEach(contract => {

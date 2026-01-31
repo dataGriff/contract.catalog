@@ -10,8 +10,6 @@ Contract Catalog automatically generates a beautiful, navigable static website f
 - **Event Contracts** (AsyncAPI 2.x) - Event-driven architecture documentation
 - **Data Contracts** (ODCS v3.1.0) - Data structure definitions using Open Data Contract Standard
 
-📐 **[View Architecture Documentation](ARCHITECTURE.md)** - Comprehensive visual representation of domains, services, and their interactions
-
 ## 🚀 Quick Start
 
 ### Installation
@@ -102,10 +100,7 @@ contract.catalog/
 
 ## 📝 Example Contracts
 
-The repository includes example contracts demonstrating a microservices architecture with two domains:
-
-### User Management Domain
-[📖 Domain Documentation](contracts/user-management/README.md)
+The repository includes example contracts in the `user-management` domain:
 
 - **user-service** - User management functionality
   - **user-api.yaml** - OpenAPI specification for a User Management API
@@ -114,20 +109,6 @@ The repository includes example contracts demonstrating a microservices architec
   
 - **auth-service** - Authentication functionality
   - **auth-api.yaml** - OpenAPI specification for an Authentication API
-
-### Order Management Domain
-[📖 Domain Documentation](contracts/order-management/README.md)
-
-- **order-service** - Order management functionality
-  - **order-api.yaml** - OpenAPI specification for Order Management API
-  - **order-events.yaml** - AsyncAPI specification for order lifecycle events
-  - **order-contract.yaml** - ODCS v3.1.0 data contract for order data structure
-
-- **payment-service** - Payment processing functionality
-  - **payment-api.yaml** - OpenAPI specification for Payment API
-  - **payment-events.yaml** - AsyncAPI specification for payment events
-
-**Cross-Domain Integration**: The example demonstrates how services reference entities across domains (e.g., orders reference users, payments reference orders and users) and communicate via synchronous APIs and asynchronous events.
 
 ## 🛠️ Available Scripts
 
